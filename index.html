@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>صيدلية وائل ناصف — منذ 2003</title>
+<meta name="theme-color" content="#065f46">
+<meta name="description" content="تطبيق صيدلية وائل ناصف لطلب الأدوية والروشتات والتوصيل السريع - 23 عاماً من الخدمة والرعاية">
+<link rel="manifest" href="manifest.json">
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --primary:#065f46;--primary-light:#059669;--primary-bg:#ecfdf5;
+  --navy:#0f2942;--gold:#d97706;--danger:#dc2626;--danger-bg:#fef2f2;
+  --bg:#f1f5f9;--card:#ffffff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --radius:14px;--shadow:0 4px 14px rgba(15,23,42,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:84px;line-height:1.5;}
+button,input,select,textarea{font-family:inherit;}
+button{cursor:pointer;border:none;outline:none;transition:.18s ease;}
+button:active{transform:scale(.97);}
+
+/* Welcome Banner (10 seconds) */
+#welcomeBanner{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:2000;
+  width:min(94%,460px);background:linear-gradient(135deg,#0f2942,#065f46);color:#fff;
+  border-radius:16px;padding:14px 16px 12px;box-shadow:0 14px 32px rgba(6,95,70,.35);
+  border:1px solid rgba(255,255,255,.18);display:none;animation:slideDown .35s ease;
+}
+@keyframes slideDown{from{opacity:0;transform:translate(-50%,-18px)}to{opacity:1;transform:translate(-50%,0)}}
+.wb-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.wb-title{font-size:15px;font-weight:700;}
+.wb-sub{font-size:12px;color:#cbd5e1;margin-top:2px;}
+.wb-controls{display:flex;align-items:center;gap:8px;}
+.wb-timer{background:rgba(255,255,255,.16);padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;min-width:44px;text-align:center;}
+.wb-close{background:rgba(255,255,255,.18);color:#fff;width:28px;height:28px;border-radius:50%;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.wb-bar-wrap{height:4px;background:rgba(255,255,255,.2);border-radius:4px;margin-top:10px;overflow:hidden;}
+.wb-bar{height:100%;width:100%;background:linear-gradient(90deg,#34d399,#fbbf24);transition:width .1s linear;}
+
+/* Header */
+header{
+  background:linear-gradient(135deg,var(--navy),var(--primary));color:#fff;
+  padding:14px 16px 16px;position:sticky;top:0;z-index:900;box-shadow:0 4px 16px rgba(15,41,66,.22);
+}
+.hdr-row{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:11px;}
+.brand-logo{
+  width:46px;height:46px;border-radius:12px;background:#fff;padding:2px;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.2);
+  font-weight:900;color:var(--primary);font-size:18px;flex-shrink:0;
+}
+.brand-logo img{width:100%;height:100%;object-fit:cover;border-radius:10px;}
+.brand h1{font-size:18px;font-weight:800;letter-spacing:-.2px;}
+.brand p{font-size:11.5px;color:#a7f3d0;font-weight:600;}
+.hdr-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.btn-hdr{
+  background:rgba(255,255,255,.14);color:#fff;padding:7px 11px;border-radius:10px;
+  font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.15);
+}
+.btn-hdr:hover{background:rgba(255,255,255,.24);}
+.btn-hdr.gold{background:linear-gradient(135deg,#f59e0b,#d97706);border:none;}
+.badge{background:#ef4444;color:#fff;border-radius:999px;padding:1px 6px;font-size:11px;font-weight:800;}
+
+/* Main Container */
+.container{max-width:1180px;margin:0 auto;padding:14px;}
+
+/* Hero Search & Quick Actions */
+.search-box{
+  background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);
+  margin-bottom:14px;border:1px solid var(--border);
+}
+.search-row{display:flex;gap:8px;flex-wrap:wrap;}
+.search-input-wrap{flex:1;min-width:220px;position:relative;}
+.search-input{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:11px;
+  font-size:14.5px;background:#f8fafc;transition:.2s;
+}
+.search-input:focus{outline:none;border-color:var(--primary-light);background:#fff;box-shadow:0 0 0 3px rgba(5,150,105,.12);}
+.rx-quick-btn{
+  background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:10px 15px;
+  border-radius:11px;font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.meta-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:12.5px;color:var(--muted);}
+.cloud-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;background:#e2e8f0;color:#334155;}
+.cloud-pill.online{background:#dcfce7;color:#166534;}
+
+/* Category Pills */
+.cats-wrap{
+  display:flex;gap:7px;overflow-x:auto;padding:4px 2px 10px;margin-bottom:10px;
+  scrollbar-width:thin;-webkit-overflow-scrolling:touch;
+}
+.cat-btn{
+  background:#fff;color:var(--text);border:1px solid var(--border);padding:7px 13px;
+  border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;flex-shrink:0;
+}
+.cat-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 3px 10px rgba(6,95,70,.25);}
+
+/* Product Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px;}
+.card{
+  background:var(--card);border-radius:var(--radius);padding:14px;border:1px solid var(--border);
+  box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:space-between;gap:10px;
+  position:relative;transition:transform .15s,box-shadow .15s;
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.1);}
+.card.out{border-color:#fecaca;background:#fffafa;}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
+.code-tag{font-size:11px;font-weight:700;color:var(--muted);background:#f1f5f9;padding:2px 7px;border-radius:6px;}
+.rx-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:#fef3c7;color:#92400e;}
+.otc-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:#e0f2fe;color:#075985;}
+.med-name{font-size:15px;font-weight:800;color:var(--navy);line-height:1.35;}
+.med-active{font-size:12px;color:#059669;font-weight:600;direction:ltr;text-align:right;}
+.med-meta{font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
+.med-meta span{background:#f8fafc;padding:2px 7px;border-radius:6px;border:1px solid #f1f5f9;}
+.card-bottom{border-top:1px dashed var(--border);padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.price{font-size:17px;font-weight:900;color:var(--primary);}
+.price small{font-size:11px;font-weight:600;color:var(--muted);}
+.stock-txt{font-size:11px;font-weight:700;color:#15803d;}
+.stock-txt.low{color:#d97706;}
+.stock-txt.zero{color:var(--danger);}
+.card-btns{display:flex;gap:6px;margin-top:4px;}
+.btn-add{flex:1;background:var(--primary);color:#fff;padding:8px 10px;border-radius:9px;font-size:12.5px;font-weight:700;}
+.btn-add:disabled{background:#94a3b8;cursor:not-allowed;}
+.btn-alt{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:8px 10px;border-radius:9px;font-size:12px;font-weight:700;}
+.btn-alt.prominent{flex:1;background:#fef3c7;color:#92400e;border-color:#fde68a;}
+
+.load-more-wrap{text-align:center;margin:20px 0 8px;}
+.btn-load-more{background:var(--navy);color:#fff;padding:11px 28px;border-radius:12px;font-size:14px;font-weight:700;}
+
+/* Floating Cart Bar */
+.fab-cart{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:850;
+  width:min(94%,480px);background:linear-gradient(135deg,#065f46,#0f2942);color:#fff;
+  border-radius:16px;padding:12px 16px;display:none;align-items:center;justify-content:space-between;
+  box-shadow:0 10px 28px rgba(15,41,66,.35);cursor:pointer;
+}
+.fab-cart.show{display:flex;}
+
+/* Modals */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:1500;
+  display:none;align-items:center;justify-content:center;padding:12px;backdrop-filter:blur(2px);
+}
+.modal-backdrop.open{display:flex;}
+.modal{
+  background:#fff;border-radius:18px;width:min(100%,640px);max-height:90vh;
+  display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.28);
+}
+.modal.wide{width:min(100%,1020px);}
+.modal-hdr{
+  background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+}
+.modal-hdr h2{font-size:16px;font-weight:800;}
+.modal-close{background:rgba(255,255,255,.18);color:#fff;width:30px;height:30px;border-radius:50%;font-size:16px;}
+.modal-body{padding:16px;overflow-y:auto;flex:1;}
+
+/* Forms & Tables */
+.field{margin-bottom:11px;}
+.field label{display:block;font-size:12.5px;font-weight:700;margin-bottom:4px;color:#334155;}
+.field input,.field select,.field textarea{
+  width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;background:#f8fafc;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--primary-light);background:#fff;}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;}
+.btn-primary{background:var(--primary);color:#fff;padding:10px 16px;border-radius:10px;font-weight:700;font-size:13.5px;}
+.btn-secondary{background:#e2e8f0;color:#0f172a;padding:9px 14px;border-radius:10px;font-weight:700;font-size:13px;}
+.btn-wa{background:#16a34a;color:#fff;padding:11px 16px;border-radius:10px;font-weight:800;font-size:14px;width:100%;}
+.btn-danger{background:var(--danger);color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;}
+
+/* Admin Tabs & KPIs */
+.admin-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px;}
+.atab{background:#f1f5f9;color:#334155;padding:8px 13px;border-radius:9px;font-size:12.5px;font-weight:700;}
+.atab.active{background:var(--primary);color:#fff;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px;}
+.kpi-card{background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
+.kpi-card small{display:block;font-size:11.5px;color:var(--muted);font-weight:700;}
+.kpi-card strong{font-size:20px;color:var(--navy);font-weight:900;}
+.tool-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px;margin-bottom:12px;}
+.tool-box h4{font-size:13.5px;color:#166534;margin-bottom:8px;}
+.tool-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap;}
+th{background:#f1f5f9;font-weight:800;color:#1e293b;}
+.toast{
+  position:fixed;bottom:82px;left:50%;transform:translateX(-50%);z-index:2500;
+  background:#0f172a;color:#fff;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:700;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;text-align:center;max-width:92%;
+}
+.cart-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.qty-ctrl{display:flex;align-items:center;gap:6px;}
+.qty-ctrl button{width:28px;height:28px;border-radius:8px;background:#e2e8f0;font-weight:900;}
+.alt-card{border:1px solid var(--border);border-radius:11px;padding:11px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:#f8fafc;}
+.order-card{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff;}
+
+/* Thermal 80mm Print */
+#printReceipt{display:none;}
+@media print{
+  body *{visibility:hidden;}
+  #printReceipt,#printReceipt *{visibility:visible;}
+  #printReceipt{display:block;position:fixed;top:0;right:0;width:80mm;padding:6px;font-size:12px;color:#000;background:#fff;}
+}
+</style>
+</head>
+<body>
+
+<!-- 10-Second Welcome Toast Banner -->
+<div id="welcomeBanner" role="status">
+  <div class="wb-top">
+    <div>
+      <div class="wb-title" id="wbGreeting">مرحباً بكم — صيدلية وائل ناصف ترحب بكم 🌿</div>
+      <div class="wb-sub">23 عاماً من الخدمة والرعاية منذ 2003 • 338 صنفاً دوائياً متاحاً</div>
+    </div>
+    <div class="wb-controls">
+      <span class="wb-timer" id="wbTimer">10 ث</span>
+      <button class="wb-close" onclick="closeWelcome()" aria-label="إغلاق">✕</button>
+    </div>
+  </div>
+  <div class="wb-bar-wrap"><div class="wb-bar" id="wbBar"></div></div>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="hdr-row">
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="icon-192.png" alt="لوجو" onerror="this.style.display='none';this.parentElement.textContent='WN';">
+      </div>
+      <div>
+        <h1>صيدلية وائل ناصف</h1>
+        <p>منذ 2003 • 23 عاماً من الثقة والرعاية</p>
+      </div>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn-hdr" onclick="openModal('rxModal')">📄 إرسال روشتة</button>
+      <button class="btn-hdr" onclick="openCart()">🛒 السلة <span class="badge" id="hdrCartCount">0</span></button>
+      <button class="btn-hdr gold" id="adminBtn" onclick="openAdminOrLogin()">🔐 الإدارة</button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Storefront -->
+<main class="container">
+  <section class="search-box">
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <input id="searchInput" class="search-input" type="search" placeholder="ابحث بالاسم العربي أو الإنجليزي أو المادة الفعالة أو الكود..." oninput="handleSearch()">
+      </div>
+      <button class="rx-quick-btn" onclick="openModal('rxModal')">📸 اطلب روشتة بالواتساب</button>
+    </div>
+    <div class="meta-bar">
+      <span id="resultsCount">جاري التحميل...</span>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:700;">
+          <input type="checkbox" id="inStockOnly" onchange="handleSearch()"> المتوفر فقط
+        </label>
+        <span class="cloud-pill" id="cloudStatus">💾 وضع محلي سريع</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <div class="cats-wrap" id="catsWrap"></div>
+
+  <!-- Medications Grid -->
+  <div class="grid" id="medsGrid"></div>
+
+  <!-- Load More -->
+  <div class="load-more-wrap" id="loadMoreWrap" style="display:none;">
+    <button class="btn-load-more" onclick="loadMore()">عرض المزيد من الأصناف ⬇</button>
+  </div>
+</main>
+
+<!-- Floating Cart Summary -->
+<div class="fab-cart" id="fabCart" onclick="openCart()">
+  <div>
+    <strong id="fabCount">0 أصناف</strong> • <span id="fabTotal">0 ج.م</span>
+  </div>
+  <strong>إتمام الطلب ←</strong>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Alternatives Modal -->
+<div class="modal-backdrop" id="altModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="altTitle">البدائل المتاحة بنفس المادة الفعالة</h2>
+      <button class="modal-close" onclick="closeModal('altModal')">✕</button>
+    </div>
+    <div class="modal-body" id="altBody"></div>
+  </div>
+</div>
+
+<!-- Cart & Checkout Modal -->
+<div class="modal-backdrop" id="cartModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2>🛒 سلة المشتريات وإتمام الطلب</h2>
+      <button class="modal-close" onclick="closeModal('cartModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="cartItemsList"></div>
+      <div id="cartCheckoutForm" style="margin-top:14px;display:none;">
+        <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:900;color:var(--primary);padding:10px 0;border-top:2px solid var(--border);">
+          <span>الإجمالي المطلوب:</span>
+          <span id="cartTotalTxt">0 ج.م</span>
+        </div>
+        <div class="grid-2" style="margin-top:10px;">
+          <div class="field"><label>اسم العميل *</label><input id="custName" placeholder="الاسم الثلاثي"></div>
+          <div class="field"><label>رقم الموبايل *</label><input id="custPhone" type="tel" placeholder="01xxxxxxxxx"></div>
+        </div>
+        <div class="field"><label>العنوان بالتفصيل *</label><input id="custAddr" placeholder="المنطقة / الشارع / علامة مميزة"></div>
+        <div class="field"><label>ملاحظات إضافية (اختياري)</label><input id="custNotes" placeholder="مثلاً: بديل مناسب في حالة عدم التوفر"></div>
+        <button class="btn-wa" onclick="submitOrder()">✅ تأكيد الطلب وإرساله عبر واتساب الصيدلية</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Prescription Modal -->
+<div class="modal-backdrop" id="rxModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2>📄 إرسال روشتة أو استفسار للصيدلي</h2>
+      <button class="modal-close" onclick="closeModal('rxModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">اكتب بياناتك وأرفق صورة الروشتة ليتم تحويلك مباشرة لواتساب صيدلية وائل ناصف ومراجعتها فوراً.</p>
+      <div class="grid-2">
+        <div class="field"><label>الاسم *</label><input id="rxName" placeholder="اسمك"></div>
+        <div class="field"><label>رقم الموبايل *</label><input id="rxPhone" type="tel" placeholder="01xxxxxxxxx"></div>
+      </div>
+      <div class="field"><label>العنوان</label><input id="rxAddr" placeholder="العنوان للتوصيل"></div>
+      <div class="field"><label>صورة الروشتة (اختياري للمعاينة والحفظ)</label><input id="rxFile" type="file" accept="image/*" onchange="previewRx(event)"></div>
+      <img id="rxPreview" style="display:none;max-width:100%;max-height:180px;border-radius:10px;margin-bottom:10px;border:1px solid var(--border);">
+      <div class="field"><label>تفاصيل الأدوية أو السؤال</label><textarea id="rxNotes" rows="3" placeholder="اكتب أسماء الأدوية أو استفسارك هنا..."></textarea></div>
+      <button class="btn-wa" onclick="sendRxWhatsApp()">📲 إرسال الروشتة عبر واتساب</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Login Modal -->
+<div class="modal-backdrop" id="loginModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-hdr">
+      <h2>🔐 دخول إدارة الصيدلية</h2>
+      <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>اسم المستخدم</label><input id="admUser" placeholder="HemaMohamed" autocomplete="username"></div>
+      <div class="field"><label>كلمة المرور</label><input id="admPass" type="password" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+      <button class="btn-primary" style="width:100%;" onclick="doAdminLogin()">دخول لوحة الإدارة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Dashboard Modal -->
+<div class="modal-backdrop" id="adminModal">
+  <div class="modal wide">
+    <div class="modal-hdr">
+      <h2>⚙️ لوحة إدارة صيدلية وائل ناصف</h2>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn-danger" onclick="adminLogout()">خروج</button>
+        <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="kpi-grid" id="adminKpis"></div>
+
+      <div class="admin-tabs">
+        <button class="atab active" onclick="switchAdminTab('inv',this)">💊 المخزون والأصناف</button>
+        <button class="atab" onclick="switchAdminTab('sync',this)">⚡ التحديث التلقائي و Excel</button>
+        <button class="atab" onclick="switchAdminTab('orders',this)">📦 الطلبات والفواتير</button>
+        <button class="atab" onclick="switchAdminTab('settings',this)">🔧 الإعدادات</button>
+      </div>
+
+      <!-- Tab 1: Inventory -->
+      <div id="tab_inv">
+        <div class="tool-box">
+          <h4>➕ إضافة أو تعديل صنف دوائي</h4>
+          <input type="hidden" id="editMedId">
+          <div class="grid-2">
+            <div class="field"><label>كود الصنف</label><input id="mCode" placeholder="MED-339"></div>
+            <div class="field"><label>الاسم التجاري *</label><input id="mName" placeholder="بنادول إكسترا..."></div>
+            <div class="field"><label>المادة الفعالة</label><input id="mActive" placeholder="Paracetamol + Caffeine"></div>
+            <div class="field"><label>القسم</label><input id="mCat" placeholder="مسكنات وخافض حرارة"></div>
+            <div class="field"><label>الشكل الصيدلي</label><input id="mForm" placeholder="أقراص / شراب / حقن"></div>
+            <div class="field"><label>الشركة</label><input id="mComp" placeholder="اسم الشركة"></div>
+            <div class="field"><label>السعر (ج.م) *</label><input id="mPrice" type="number" step="0.5"></div>
+            <div class="field"><label>المخزون *</label><input id="mStock" type="number"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <label style="font-size:13px;font-weight:700;"><input type="checkbox" id="mRx"> يتطلب روشتة طبية</label>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-secondary" onclick="resetMedForm()">مسح الحقول</button>
+              <button class="btn-primary" onclick="saveMedForm()">💾 حفظ الصنف</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <input id="admSearch" class="search-input" style="flex:1;min-width:200px;" placeholder="بحث سريع في جدول الإدارة..." oninput="renderAdminTable()">
+          <button class="btn-secondary" onclick="deduplicateAndSync()">🧹 تنظيف المكرر</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>الكود</th><th>الاسم التجاري</th><th>القسم</th><th>السعر</th><th>المخزون</th><th>إجراءات</th></tr>
+            </thead>
+            <tbody id="admTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 2: Excel & Google Sheets Sync -->
+      <div id="tab_sync" style="display:none;">
+        <div class="tool-box">
+          <h4>⚡ تحديث الأسعار الجماعي (Excel / CSV) — بدون المساس بالمخزون</h4>
+          <p style="font-size:12.5px;color:#334155;margin-bottom:8px;">ارفع شيت الأسعار الجديد من الموزع أو هيئة الدواء (يحتوي على عمود الاسم أو الكود + عمود السعر الجديد)، وسيطابق البرنامج الأصناف ويحدث أسعارها فوراً.</p>
+          <input type="file" id="bulkPriceFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcelImport(event,'prices')">
+          <button class="btn-primary" onclick="document.getElementById('bulkPriceFile').click()">⚡ اختيار شيت تحديث الأسعار</button>
+        </div>
+
+        <div class="tool-box" style="background:#eff6ff;border-color:#bfdbfe;">
+          <h4 style="color:#1e40af;">📥 استيراد أو تصدير قاعدة البيانات بالكامل (Excel)</h4>
+          <div class="tool-row">
+            <input type="file" id="fullImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcelImport(event,'full')">
+            <button class="btn-primary" onclick="document.getElementById('fullImportFile').click()">📥 استيراد شيت Excel كامل (دمج وتحديث)</button>
+            <button class="btn-secondary" onclick="exportExcel()">📤 تصدير القاعدة الحالية كـ Excel</button>
+            <button class="btn-danger" onclick="resetToDefault338()">🔄 استعادة الـ 338 صنفاً الأصلية</button>
+          </div>
+        </div>
+
+        <div class="tool-box" style="background:#fffbeb;border-color:#fde68a;">
+          <h4 style="color:#92400e;">🌐 المزامنة السحابية التلقائية من Google Sheets (CSV)</h4>
+          <p style="font-size:12px;color:#78350f;margin-bottom:8px;">انشر شيت جوجل عبر (File ← Share ← Publish to web ← CSV) والصق الرابط هنا ليتم تحديث الأسعار بضغطة زر أو تلقائياً عند فتح التطبيق.</p>
+          <div class="field"><input id="gsheetUrl" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv"></div>
+          <div class="tool-row">
+            <button class="btn-primary" onclick="syncGoogleSheet(true)">🔄 حفظ ومزامنة الآن</button>
+            <label style="font-size:12.5px;font-weight:700;"><input type="checkbox" id="gsheetAuto"> مزامنة تلقائية عند فتح التطبيق</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Orders -->
+      <div id="tab_orders" style="display:none;">
+        <div id="adminOrdersList"></div>
+      </div>
+
+      <!-- Tab 4: Settings -->
+      <div id="tab_settings" style="display:none;">
+        <div class="tool-box" style="background:#f8fafc;border-color:var(--border);">
+          <h4 style="color:var(--navy);">📲 إعدادات الصيدلية والواتساب</h4>
+          <div class="field"><label>رقم واتساب الصيدلية (بصيغة دولية مثل 201093872001)</label><input id="setWhatsapp"></div>
+          <div class="field"><label>عنوان الصيدلية (يظهر في الفاتورة الحرارية)</label><input id="setAddress"></div>
+          <button class="btn-primary" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Thermal Receipt 80mm Print Area -->
+<div id="printReceipt"></div>
+
+<script>
+// =========================================================================
+// 1. إعدادات Firebase (ضع مفاتيح مشروعك هنا لتفعيل المزامنة السحابية)
+// =========================================================================
+const MANUAL_FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+
+// =========================================================================
+// 2. قاعدة بيانات الأدوية المصرية الكاملة (338 صنفاً مستخرجة من شيت الإكسيل)
+// التنسيق: [الكود, الاسم التجاري, المادة الفعالة, القسم, الشكل الصيدلي, السعر, المخزون, الشركة, روشتة]
+// =========================================================================
+const DEFAULT_MEDS_RAW = [["MED-001","بنادول إكسترا (Panadol Extra)","Paracetamol + Caffeine","مسكنات وخافض حرارة","أقراص",52.0,60,"Haleon",0],["MED-002","أبيمول إكسترا (Abimol Extra)","Paracetamol + Caffeine","مسكنات وخافض حرارة","أقراص",26.0,50,"GSK Egypt",0],["MED-003","بنادول أدفانس (Panadol Advance)","Paracetamol 500mg","مسكنات وخافض حرارة","أقراص",42.0,70,"Haleon",0],["MED-004","سيتال 500 (Cetal 500)","Paracetamol 500mg","مسكنات وخافض حرارة","أقراص",20.0,80,"EIPICO",0],["MED-005","بارامول 500 (Paramol 500)","Paracetamol 500mg","مسكنات وخافض حرارة","أقراص",18.0,70,"Misr Pharma",0],["MED-006","نوفالدول 1000 (Novaldol 1000)","Paracetamol 1000mg","مسكنات وخافض حرارة","أقراص",38.0,55,"Sanofi",0],["MED-007","بنادول جوينت (Panadol Joint)","Paracetamol 665mg","مسكنات وخافض حرارة","أقراص",65.0,40,"Haleon",0],["MED-008","كتافلام 50 (Cataflam 50)","Diclofenac Potassium 50mg","مسكنات وخافض حرارة","أقراص",68.0,50,"Novartis",0],["MED-009","كتافلام 25 (Cataflam 25)","Diclofenac Potassium 25mg","مسكنات وخافض حرارة","أقراص",45.0,35,"Novartis",0],["MED-010","كتافاست فوار (Catafast)","Diclofenac Potassium 50mg","مسكنات وخافض حرارة","أكياس فوارة",68.0,60,"Novartis",0],["MED-011","أدويفلام 50 (Adwiflam 50)","Diclofenac Potassium 50mg","مسكنات وخافض حرارة","أقراص",32.0,45,"ADWIA",0],["MED-012","دولفين ك 50 (Dolphin-K 50)","Diclofenac Potassium 50mg","مسكنات وخافض حرارة","أقراص",35.0,40,"Delta Pharma",0],["MED-013","رابيفلام 50 (Rapiflam 50)","Diclofenac Potassium 50mg","مسكنات وخافض حرارة","أقراص",30.0,40,"Rameda",0],["MED-014","بروفين 400 (Brufen 400)","Ibuprofen 400mg","مسكنات وخافض حرارة","أقراص",54.0,45,"Abbott",0],["MED-015","بروفين 600 (Brufen 600)","Ibuprofen 600mg","مسكنات وخافض حرارة","أقراص",68.0,40,"Abbott",0],["MED-016","ماركوفين 400 (Marcofen 400)","Ibuprofen 400mg","مسكنات وخافض حرارة","أقراص",30.0,50,"Marcyl",0],["MED-017","فولتارين 50 (Voltaren 50)","Diclofenac Sodium 50mg","مسكنات وخافض حرارة","أقراص",58.0,35,"Novartis",0],["MED-018","فولتارين 100 ريتارد (Voltaren 100 SR)","Diclofenac Sodium 100mg","مسكنات وخافض حرارة","أقراص",75.0,30,"Novartis",0],["MED-019","فولتارين أمبول (Voltaren Amp)","Diclofenac Sodium 75mg","مسكنات وخافض حرارة","حقن عضلي",72.0,40,"Novartis",1],["MED-020","ديكلوفين 50 (Declophen 50)","Diclofenac Sodium 50mg","مسكنات وخافض حرارة","أقراص",28.0,45,"Pharco",0],["MED-021","أولفين 100 (Olfen 100 SR)","Diclofenac Sodium 100mg","مسكنات وخافض حرارة","كبسولات",65.0,35,"MUP",0],["MED-022","باي ألكوفان (Bi-Alcofan)","Ketoprofen 150mg","مسكنات وخافض حرارة","أقراص",42.0,35,"Alexandria",0],["MED-023","كيتوفان 50 (Ketofan 50)","Ketoprofen 50mg","مسكنات وخافض حرارة","كبسولات",34.0,45,"Amriya",0],["MED-024","كيتولاك أقراص (Ketolac Tab)","Ketorolac 10mg","مسكنات وخافض حرارة","أقراص",36.0,40,"Amriya",1],["MED-025","كيتولاك أمبول (Ketolac Amp)","Ketorolac 30mg","مسكنات وخافض حرارة","حقن",42.0,45,"Amriya",1],["MED-026","أدولور أمبول (Adolor Amp)","Ketorolac 30mg","مسكنات وخافض حرارة","حقن",38.0,40,"Pharco",1],["MED-027","سليبريكس 200 (Celebrex 200)","Celecoxib 200mg","مسكنات وخافض حرارة","كبسولات",145.0,25,"Pfizer",1],["MED-028","سيلوكوكسيب 200 (Eurocox 200)","Celecoxib 200mg","مسكنات وخافض حرارة","كبسولات",68.0,35,"Amoun",1],["MED-029","أركوكسيا 90 (Arcoxia 90)","Etoricoxib 90mg","مسكنات وخافض حرارة","أقراص",185.0,20,"MSD",1],["MED-030","إيتوريكوكس 90 (Ansaid / Etoricox)","Etoricoxib 90mg","مسكنات وخافض حرارة","أقراص",95.0,30,"Eva Pharma",1],["MED-031","موبيك 15 (Mobic 15)","Meloxicam 15mg","مسكنات وخافض حرارة","أقراص",85.0,30,"Boehringer",1],["MED-032","أنتيكوكس 15 (Anticox II 15)","Meloxicam 15mg","مسكنات وخافض حرارة","أقراص",40.0,45,"ADWIA",1],["MED-033","ميجرانيل (Migranil)","Ergotamine + Caffeine + Paracetamol","مسكنات وخافض حرارة","أقراص للصداع النصفي",24.0,35,"Nile Pharma",1],["MED-034","إيميجران 50 (Imigran 50)","Sumatriptan 50mg","مسكنات وخافض حرارة","أقراص للصداع النصفي",95.0,20,"GSK",1],["MED-035","أوجمنتين 1 جم (Augmentin 1g)","Amoxicillin + Clavulanic Acid 1g","مضادات حيوية","أقراص",148.0,35,"GSK",1],["MED-036","هايبوتك 1 جم (Hibiotic 1g)","Amoxicillin + Clavulanic Acid 1g","مضادات حيوية","أقراص",118.0,45,"Amoun",1],["MED-037","كيورام 1 جم (Curam 1g)","Amoxicillin + Clavulanic Acid 1g","مضادات حيوية","أقراص",115.0,40,"Sandoz",1],["MED-038","ميجاموكس 1 جم (Megamox 1g)","Amoxicillin + Clavulanic Acid 1g","مضادات حيوية","أقراص",112.0,30,"Jazeera",1],["MED-039","إيموكسكلاف 1 جم (Emoxclav 1g)","Amoxicillin + Clavulanic Acid 1g","مضادات حيوية","أقراص",98.0,35,"EIPICO",1],["MED-040","يوناسين 375 (Unasyn 375)","Sultamicillin 375mg","مضادات حيوية","أقراص",115.0,30,"Pfizer",1],["MED-041","يونيكتام 375 (Unictam 375)","Sultamicillin 375mg","مضادات حيوية","أقراص",78.0,35,"MUP",1],["MED-042","يونيكتام 1500 حقن (Unictam 1500)","Ampicillin + Sulbactam 1.5g","مضادات حيوية","حقن وريدي/عضلي",54.0,50,"MUP",1],["MED-043","فلوموكس 500 (Flumox 500)","Amoxicillin + Flucloxacillin 500mg","مضادات حيوية","كبسولات",68.0,50,"EIPICO",1],["MED-044","فلوموكس 1 جم (Flumox 1g)","Amoxicillin + Flucloxacillin 1g","مضادات حيوية","أقراص",92.0,40,"EIPICO",1],["MED-045","زيثروماكس 500 (Zithromax 500)","Azithromycin 500mg","مضادات حيوية","أقراص",110.0,30,"Pfizer",1],["MED-046","زيسروسين 500 (Zisrocin 500)","Azithromycin 500mg","مضادات حيوية","كبسولات",65.0,45,"EIPICO",1],["MED-047","أزيروليد 500 (Azirolide 500)","Azithromycin 500mg","مضادات حيوية","أقراص",58.0,35,"Al Andalous",1],["MED-048","زيثروكان 500 (Zithrokan 500)","Azithromycin 500mg","مضادات حيوية","كبسولات",62.0,40,"Hikma",1],["MED-049","كلاسيد 500 (Klacid 500)","Clarithromycin 500mg","مضادات حيوية","أقراص",195.0,20,"Abbott",1],["MED-050","كلاريكان 500 (Clarikan 500)","Clarithromycin 500mg","مضادات حيوية","أقراص",115.0,30,"Hikma",1],["MED-051","سيبروباي 500 (Ciprobay 500)","Ciprofloxacin 500mg","مضادات حيوية","أقراص",95.0,30,"Bayer",1],["MED-052","سيبروفار 500 (Ciprofar 500)","Ciprofloxacin 500mg","مضادات حيوية","أقراص",52.0,45,"Pharco",1],["MED-053","سيبروسين 500 (Ciprocin 500)","Ciprofloxacin 500mg","مضادات حيوية","أقراص",54.0,40,"EIPICO",1],["MED-054","تافانيك 500 (Tavanic 500)","Levofloxacin 500mg","مضادات حيوية","أقراص",130.0,25,"Sanofi",1],["MED-055","ليفاكت 500 (Levact 500)","Levofloxacin 500mg","مضادات حيوية","أقراص",75.0,40,"Eva Pharma",1],["MED-056","تافاسين 500 (Tavacin 500)","Levofloxacin 500mg","مضادات حيوية","أقراص",72.0,35,"ADWIA",1],["MED-057","أفالوكس 400 (Avalox 400)","Moxifloxacin 400mg","مضادات حيوية","أقراص",165.0,20,"Bayer",1],["MED-058","موكسيفلوكس 400 (Moxiflox 400)","Moxifloxacin 400mg","مضادات حيوية","أقراص",98.0,30,"Eva Pharma",1],["MED-059","فلاجيل 500 (Flagyl 500)","Metronidazole 500mg","مضادات حيوية","أقراص",32.0,65,"Sanofi",1],["MED-060","أمريزول 500 (Amrizole 500)","Metronidazole 500mg","مضادات حيوية","أقراص",26.0,60,"Amriya",1],["MED-061","دالاسين سي 300 (Dalacin C 300)","Clindamycin 300mg","مضادات حيوية","كبسولات",98.0,30,"Pfizer",1],["MED-062","كليندام 300 (Clindam 300)","Clindamycin 300mg","مضادات حيوية","كبسولات",62.0,40,"Sigma",1],["MED-063","فيبراميسين 100 (Vibramycin 100)","Doxycycline 100mg","مضادات حيوية","كبسولات",58.0,40,"Pfizer",1],["MED-064","دوكسيسين 100 (Doxycost 100)","Doxycycline 100mg","مضادات حيوية","كبسولات",34.0,45,"Nile Pharma",1],["MED-065","سيفترياكسون 1 جم (Ceftriaxone 1g)","Ceftriaxone 1g","مضادات حيوية","حقن وريدي/عضلي",55.0,60,"EIPICO",1],["MED-066","زوراكسون 1 جم (Xone / Zoraxon 1g)","Ceftriaxone 1g","مضادات حيوية","حقن وريدي/عضلي",52.0,50,"Pharco",1],["MED-067","سيفوتاكس 1 جم (Cefotax 1g)","Cefotaxime 1g","مضادات حيوية","حقن وريدي/عضلي",48.0,55,"EIPICO",1],["MED-068","سوبراكس 400 (Suprax 400)","Cefixime 400mg","مضادات حيوية","كبسولات",125.0,25,"Hikma",1],["MED-069","زيمكسيم 400 (Ximacef 400)","Cefixime 400mg","مضادات حيوية","كبسولات",78.0,35,"Sigma",1],["MED-070","زيناك 500 (Zinnat 500)","Cefuroxime 500mg","مضادات حيوية","أقراص",145.0,25,"GSK",1],["MED-071","سيفوريكس 500 (Zinocef 500)","Cefuroxime 500mg","مضادات حيوية","أقراص",88.0,35,"Amoun",1],["MED-072","ديفلوكان 150 (Diflucan 150)","Fluconazole 150mg","مضادات حيوية","كبسولة للفطريات",78.0,35,"Pfizer",1],["MED-073","فلوكان 150 (Flucoral 150)","Fluconazole 150mg","مضادات حيوية","كبسولات للفطريات",42.0,45,"Sedico",1],["MED-074","زوفيراكس 400 (Zovirax 400)","Acyclovir 400mg","مضادات حيوية","أقراص للفيروسات",115.0,25,"GSK",1],["MED-075","كونجستال (Congestal)","Paracetamol + Chlorpheniramine + Pseudoephedrine","برد وحساسية","أقراص",45.0,75,"Sigma",0],["MED-076","كومتركس (Comtrex)","Paracetamol + Brompheniramine + Pseudoephedrine","برد وحساسية","أقراص",52.0,70,"GSK",0],["MED-077","بنادول كولد آند فلو (Panadol Cold & Flu)","Paracetamol + Chlorpheniramine + Pseudoephedrine","برد وحساسية","أقراص",58.0,55,"Haleon",0],["MED-078","فلورست إن (Flurest N)","Paracetamol + Chlorpheniramine + Pseudoephedrine","برد وحساسية","أقراص",36.0,50,"Glaxo",0],["MED-079","وان تو ثري (123 Tablets)","Paracetamol + Chlorpheniramine + Pseudoephedrine","برد وحساسية","أقراص",42.0,60,"Hikma",0],["MED-080","كولد فري (Cold Free)","Paracetamol + Chlorpheniramine + Pseudoephedrine","برد وحساسية","أقراص",34.0,50,"Amriya",0],["MED-081","تلفاست 180 (Telfast 180)","Fexofenadine 180mg","برد وحساسية","أقراص",105.0,40,"Sanofi",0],["MED-082","تلفاست 120 (Telfast 120)","Fexofenadine 120mg","برد وحساسية","أقراص",85.0,35,"Sanofi",0],["MED-083","فاستل 180 (Fastel 180)","Fexofenadine 180mg","برد وحساسية","أقراص",62.0,45,"Rameda",0],["MED-084","أليـرجيـكس 180 (Fexodine 180)","Fexofenadine 180mg","برد وحساسية","أقراص",55.0,40,"Al Andalous",0],["MED-085","زيرتك 10 (Zyrtec 10)","Cetirizine 10mg","برد وحساسية","أقراص",68.0,50,"GSK",0],["MED-086","إليريد 10 (Elerid 10)","Cetirizine 10mg","برد وحساسية","أقراص",34.0,55,"Global Napi",0],["MED-087","كلاريتين 10 (Claritine 10)","Loratadine 10mg","برد وحساسية","أقراص",78.0,35,"Bayer",0],["MED-088","موسيدين 10 (Mosedin 10)","Loratadine 10mg","برد وحساسية","أقراص",32.0,45,"Amoun",0],["MED-089","إيريوس 5 (Aerius 5)","Desloratadine 5mg","برد وحساسية","أقراص",96.0,35,"MSD",0],["MED-090","ديسا 5 (Desa 5)","Desloratadine 5mg","برد وحساسية","أقراص",48.0,45,"Delta Pharma",0],["MED-091","ليفسيت 5 (Levcet 5)","Levocetirizine 5mg","برد وحساسية","أقراص",46.0,40,"Al Andalous",0],["MED-092","أوتريفين نقط للأنف (Otrivin Adult)","Xylometazoline 0.1%","برد وحساسية","نقط للأنف",38.0,65,"Novartis",0],["MED-093","أوتريفين بخاخ للأنف (Otrivin Spray)","Xylometazoline 0.1%","برد وحساسية","بخاخ للأنف",48.0,55,"Novartis",0],["MED-094","نازونيكس بخاخ (Nasonex Spray)","Mometasone Furoate","برد وحساسية","بخاخ حساسية الأنف",165.0,25,"MSD",1],["MED-095","فليكسونيز بخاخ (Flixonase Spray)","Fluticasone Propionate","برد وحساسية","بخاخ حساسية الأنف",155.0,25,"GSK",1],["MED-096","أوبلكس شراب (Oplex-N)","Oxomemazine + Guaifenesin + Paracetamol","برد وحساسية","شراب للكحة",36.0,50,"Amriya",0],["MED-097","برونشيكم شراب (Bronchicum)","Thyme + Primula Extract","برد وحساسية","شراب للكحة",72.0,45,"Sanofi",0],["MED-098","توسكان شراب (Tusskan)","Dextromethorphan + Guaifenesin","برد وحساسية","شراب للكحة",32.0,55,"Hikma",0],["MED-099","ميكوسولفان شراب (Mucosolvan)","Ambroxol 30mg/5ml","برد وحساسية","شراب مذيب للبلغم",54.0,45,"Sanofi",0],["MED-100","أولفنت شراب (All-Vent)","Bromhexine + Terbutaline + Guaifenesin","برد وحساسية","شراب موسع للشعب",34.0,50,"GSK",0],["MED-101","أستيل سيستين 600 فوار (Acetylcistein 600)","Acetylcysteine 600mg","برد وحساسية","أكياس فوارة",48.0,55,"Sedico",0],["MED-102","فنتولين بخاخ (Ventolin Inhaler)","Salbutamol 100mcg","برد وحساسية","بخاخ للربو",95.0,35,"GSK",1],["MED-103","سيمبيكورت 160 (Symbicort 160)","Budesonide + Formoterol","برد وحساسية","بخاخ للربو",390.0,15,"AstraZeneca",1],["MED-104","سينجولير 10 (Singulair 10)","Montelukast 10mg","برد وحساسية","أقراص للربو",145.0,25,"MSD",1],["MED-105","كاست 10 (Kast 10)","Montelukast 10mg","برد وحساسية","أقراص للربو",68.0,40,"Eva Pharma",1],["MED-106","ستربسلز بالعسل والليمون (Strepsils)","Amylmetacresol + Dichlorobenzyl Alcohol","برد وحساسية","أقراص استحلاب",75.0,50,"Reckitt",0],["MED-107","كونترولوك 40 (Controloc 40)","Pantoprazole 40mg","معدة وقولون","أقراص",150.0,40,"Takeda",0],["MED-108","بانتولوك 40 (Pantoloc 40)","Pantoprazole 40mg","معدة وقولون","أقراص",85.0,50,"EIPICO",0],["MED-109","زوركال 40 (Zurcal 40)","Pantoprazole 40mg","معدة وقولون","أقراص",78.0,45,"Aug Pharma",0],["MED-110","نيكسيوم 40 (Nexium 40)","Esomeprazole 40mg","معدة وقولون","أقراص",165.0,30,"AstraZeneca",0],["MED-111","إيزوميلودان 40 (Esomelodan 40)","Esomeprazole 40mg","معدة وقولون","كبسولات",82.0,45,"Multi-Apex",0],["MED-112","نابيزول 40 (Napizole 40)","Esomeprazole 40mg","معدة وقولون","كبسولات",74.0,40,"Global Napi",0],["MED-113","أوميز 20 (Omez 20)","Omeprazole 20mg","معدة وقولون","كبسولات",48.0,55,"Pharaonia",0],["MED-114","جاسترازول 20 (Gastrazole 20)","Omeprazole 20mg","معدة وقولون","كبسولات",44.0,50,"Amoun",0],["MED-115","داونوبرازول 20 (Downoprazol 20)","Omeprazole 20mg","معدة وقولون","كبسولات",46.0,45,"Utopia",0],["MED-116","فاموتاك 40 (Famotak 40)","Famotidine 40mg","معدة وقولون","أقراص",38.0,50,"SPIMACO",0],["MED-117","أنتودين 40 (Antodine 40)","Famotidine 40mg","معدة وقولون","أقراص",34.0,55,"Amoun",0],["MED-118","جافيسكون أدفانس (Gaviscon Advance)","Sodium Alginate + Potassium Bicarbonate","معدة وقولون","شراب معلق",115.0,35,"Reckitt",0],["MED-119","موكوجيل شراب (Mucogel)","Aluminium + Magnesium Hydroxide + Oxethazaine","معدة وقولون","شراب للحموضة",38.0,50,"EIPICO",0],["MED-120","فوار فروت (Fawar Fruit)","Sodium Bicarbonate + Citric Acid","معدة وقولون","أكياس فوارة",28.0,70,"Pharco",0],["MED-121","أنتينال (Antinal)","Nifuroxazide 200mg","معدة وقولون","كبسولات",44.0,70,"Amoun",0],["MED-122","دياكس (Diax)","Nifuroxazide 200mg","معدة وقولون","كبسولات",36.0,55,"Hikma",0],["MED-123","ستربتوكين (Streptoquin)","Diiodohydroxyquinoline + Phthalylsulfathiazole","معدة وقولون","أقراص",32.0,60,"MUP",0],["MED-124","نانازوكسيد 500 (Nanazoxid 500)","Nitazoxanide 500mg","معدة وقولون","أقراص",76.0,40,"Utopia",1],["MED-125","دياسميكت (Smecta / Diasmect)","Diosmectite 3g","معدة وقولون","أكياس",55.0,45,"Ipsen",0],["MED-126","إيموديوم (Imodium)","Loperamide 2mg","معدة وقولون","كبسولات",52.0,40,"Janssen",0],["MED-127","كولونا (Colona)","Sulpiride + Mebeverine","معدة وقولون","أقراص",64.0,55,"Rameda",0],["MED-128","كولوفرين د (Coloverin D)","Mebeverine + Dimethicone","معدة وقولون","أقراص",68.0,50,"Chemipharm",0],["MED-129","كولوفرين أ (Coloverin A)","Mebeverine + Chlordiazepoxide","معدة وقولون","أقراص",66.0,40,"Chemipharm",1],["MED-130","دوسباتالين ريتارد (Duspatalin 200)","Mebeverine 200mg","معدة وقولون","كبسولات",112.0,40,"Abbott",0],["MED-131","ليبـراكس (Librax)","Clidinium + Chlordiazepoxide","معدة وقولون","أقراص",58.0,35,"Meda",1],["MED-132","جاست ريج 200 (Gast-Reg 200)","Trimebutine 200mg","معدة وقولون","أقراص",64.0,50,"Amoun",0],["MED-133","ترايتون 200 (Tritone 200)","Trimebutine 200mg","معدة وقولون","أقراص",48.0,45,"Global Napi",0],["MED-134","فيسرالجين (Visceralgine)","Tiemonium Methylsulphate 50mg","معدة وقولون","أقراص",46.0,55,"Sedico",0],["MED-135","سبازموفري (Spasmofree)","Tiemonium Methylsulphate 50mg","معدة وقولون","أقراص",38.0,50,"Amriya",0],["MED-136","بوسكوبان (Buscopan)","Hyoscine Butylbromide 10mg","معدة وقولون","أقراص",44.0,50,"Sanofi",0],["MED-137","موتيليوم (Motilium)","Domperidone 10mg","معدة وقولون","أقراص",66.0,45,"Janssen",0],["MED-138","موتينورم (Motinorm)","Domperidone 10mg","معدة وقولون","أقراص",32.0,50,"GSK",0],["MED-139","زوفران 8 (Zofran 8)","Ondansetron 8mg","معدة وقولون","أقراص للقيء",125.0,25,"Novartis",1],["MED-140","دانسيت 8 (Danset 8)","Ondansetron 8mg","معدة وقولون","أقراص للقيء",54.0,40,"ADWIA",1],["MED-141","دوفالاك شراب (Duphalac)","Lactulose","معدة وقولون","شراب ملين",88.0,45,"Abbott",0],["MED-142","لاكسولاك شراب (Laxolac)","Lactulose","معدة وقولون","شراب ملين",48.0,50,"MUP",0],["MED-143","بيكولاكس نقط (Picolax Drops)","Sodium Picosulfate","معدة وقولون","نقط ملينة",32.0,50,"EIPICO",0],["MED-144","إيوكاربون (Eucarbon)","Activated Charcoal + Senna","معدة وقولون","أقراص للغازات",62.0,50,"Trenka",0],["MED-145","ديسفلاتيل (Disflatyl)","Simethicone 40mg","معدة وقولون","أقراص للمضغ",46.0,50,"MUP",0],["MED-146","ديجستين (Digestin)","Papain + Pepsin + Sanzyme","معدة وقولون","أقراص مهضمة",42.0,45,"Pharco",0],["MED-147","دافلون 500 (Daflon 500)","Diosmin + Hesperidin 500mg","معدة وقولون","أقراص للبواسير والدوالي",148.0,45,"Servier",0],["MED-148","ديوسمين 500 (Dioven 500)","Diosmin 500mg","معدة وقولون","أقراص للبواسير والدوالي",74.0,45,"Amriya",0],["MED-149","كونكور 5 (Concor 5)","Bisoprolol 5mg","ضغط وقلب","أقراص",96.0,55,"Merck",1],["MED-150","كونكور 2.5 (Concor 2.5)","Bisoprolol 2.5mg","ضغط وقلب","أقراص",68.0,45,"Merck",1],["MED-151","كونكور 10 (Concor 10)","Bisoprolol 10mg","ضغط وقلب","أقراص",112.0,40,"Merck",1],["MED-152","كونكور 5 بلس (Concor 5 Plus)","Bisoprolol 5mg + HCTZ 12.5mg","ضغط وقلب","أقراص",96.0,45,"Merck",1],["MED-153","بيستول 5 (Bistol 5)","Bisoprolol 5mg","ضغط وقلب","أقراص",48.0,50,"Chemipharm",1],["MED-154","بيسوكارد 5 (Bisocard 5)","Bisoprolol 5mg","ضغط وقلب","أقراص",45.0,45,"Global Napi",1],["MED-155","إنديرال 10 (Inderal 10)","Propranolol 10mg","ضغط وقلب","أقراص",32.0,55,"AstraZeneca",1],["MED-156","إنديرال 40 (Inderal 40)","Propranolol 40mg","ضغط وقلب","أقراص",42.0,45,"AstraZeneca",1],["MED-157","نيبيلت 5 (Nebilet 5)","Nebivolol 5mg","ضغط وقلب","أقراص",128.0,35,"Menarini",1],["MED-158","إكسفورج 5/160 (Exforge 5/160)","Amlodipine 5mg + Valsartan 160mg","ضغط وقلب","أقراص",215.0,30,"Novartis",1],["MED-159","إكسفورج 10/160 (Exforge 10/160)","Amlodipine 10mg + Valsartan 160mg","ضغط وقلب","أقراص",235.0,25,"Novartis",1],["MED-160","ألكابرس بلس 5/160 (Alkapress Plus)","Amlodipine 5mg + Valsartan 160mg","ضغط وقلب","أقراص",125.0,40,"Hikma",1],["MED-161","كوتاريج 160/12.5 (Co-Tareg)","Valsartan 160mg + HCTZ 12.5mg","ضغط وقلب","أقراص",165.0,30,"Novartis",1],["MED-162","نورفاسك 5 (Norvasc 5)","Amlodipine 5mg","ضغط وقلب","أقراص",76.0,45,"Pfizer",1],["MED-163","أملور 5 (Amlor 5)","Amlodipine 5mg","ضغط وقلب","كبسولات",62.0,40,"Pfizer",1],["MED-164","ترايتيس 5 (Tritace 5)","Ramipril 5mg","ضغط وقلب","أقراص",92.0,40,"Sanofi",1],["MED-165","راميبريل 5 (Ramipril 5)","Ramipril 5mg","ضغط وقلب","أقراص",48.0,45,"EIPICO",1],["MED-166","كابوتين 25 (Capoten 25)","Captopril 25mg","ضغط وقلب","أقراص",34.0,65,"SmithKline",1],["MED-167","إزابريل 10 (Ezapril 10)","Enalapril 10mg","ضغط وقلب","أقراص",32.0,45,"Multi-Apex",1],["MED-168","لازيكس 40 (Lasix 40)","Furosemide 40mg","ضغط وقلب","أقراص مدرة للبول",36.0,55,"Sanofi",1],["MED-169","ناتريليكس إس آر (Natrilix SR)","Indapamide 1.5mg","ضغط وقلب","أقراص",96.0,35,"Servier",1],["MED-170","ألدوميت 250 (Aldomet 250)","Methyldopa 250mg","ضغط وقلب","أقراص ضغط للحوامل",72.0,40,"Aspen",1],["MED-171","أسبرين بروتكت 100 (Aspirin Protect)","Acetylsalicylic Acid 100mg","ضغط وقلب","أقراص للسيولة",62.0,75,"Bayer",0],["MED-172","جوسبرين 81 (Jusprin 81)","Acetylsalicylic Acid 81mg","ضغط وقلب","أقراص للسيولة",36.0,70,"Julphar",0],["MED-173","أسبوسيد 75 (Aspocid 75)","Acetylsalicylic Acid 75mg","ضغط وقلب","أقراص للسيولة",22.0,65,"CID",0],["MED-174","بلافيكس 75 (Plavix 75)","Clopidogrel 75mg","ضغط وقلب","أقراص للسيولة",245.0,25,"Sanofi",1],["MED-175","كلوبكس 75 (Clopex 75)","Clopidogrel 75mg","ضغط وقلب","أقراص للسيولة",95.0,40,"Apex",1],["MED-176","ماريفان 5 (Marevan 5)","Warfarin 5mg","ضغط وقلب","أقراص للسيولة",38.0,40,"GSK",1],["MED-177","زاريلتو 20 (Xarelto 20)","Rivaroxaban 20mg","ضغط وقلب","أقراص للسيولة",580.0,15,"Bayer",1],["MED-178","ريفاروسبير 20 (Rivarospire 20)","Rivaroxaban 20mg","ضغط وقلب","أقراص للسيولة",240.0,25,"Inspire",1],["MED-179","ليبيتور 20 (Lipitor 20)","Atorvastatin 20mg","ضغط وقلب","أقراص للكوليسترول",155.0,35,"Pfizer",1],["MED-180","أتور 20 (Ator 20)","Atorvastatin 20mg","ضغط وقلب","أقراص للكوليسترول",72.0,50,"EIPICO",1],["MED-181","أتور 40 (Ator 40)","Atorvastatin 40mg","ضغط وقلب","أقراص للكوليسترول",96.0,40,"EIPICO",1],["MED-182","كريستور 10 (Crestor 10)","Rosuvastatin 10mg","ضغط وقلب","أقراص للكوليسترول",210.0,25,"AstraZeneca",1],["MED-183","كريستور 20 (Crestor 20)","Rosuvastatin 20mg","ضغط وقلب","أقراص للكوليسترول",285.0,20,"AstraZeneca",1],["MED-184","شوليروز 10 (Cholerose 10)","Rosuvastatin 10mg","ضغط وقلب","أقراص للكوليسترول",88.0,40,"Al Andalous",1],["MED-185","سيدوفاج 500 (Cidophage 500)","Metformin 500mg","أدوية السكر والغدد","أقراص",28.0,70,"CID",1],["MED-186","سيدوفاج 850 (Cidophage 850)","Metformin 850mg","أدوية السكر والغدد","أقراص",36.0,75,"CID",1],["MED-187","سيدوفاج 1000 ريتارد (Cidophage 1000)","Metformin 1000mg","أدوية السكر والغدد","أقراص",48.0,60,"CID",1],["MED-188","جلوكوفاج 1000 (Glucophage 1000)","Metformin 1000mg","أدوية السكر والغدد","أقراص",78.0,60,"Merck",1],["MED-189","أماريل 2 مجم (Amaryl 2mg)","Glimepiride 2mg","أدوية السكر والغدد","أقراص",88.0,50,"Sanofi",1],["MED-190","أماريل 4 مجم (Amaryl 4mg)","Glimepiride 4mg","أدوية السكر والغدد","أقراص",125.0,40,"Sanofi",1],["MED-191","دولسيل 2 مجم (Dolcyl 2mg)","Glimepiride 2mg","أدوية السكر والغدد","أقراص",44.0,45,"Global Napi",1],["MED-192","دياميكرون 60 إم آر (Diamicron 60 MR)","Gliclazide 60mg","أدوية السكر والغدد","أقراص",118.0,40,"Servier",1],["MED-193","جانومت 50/1000 (Janumet)","Sitagliptin 50mg + Metformin 1000mg","أدوية السكر والغدد","أقراص",310.0,30,"MSD",1],["MED-194","جالفس مت 50/1000 (Galvus Met)","Vildagliptin 50mg + Metformin 1000mg","أدوية السكر والغدد","أقراص",295.0,30,"Novartis",1],["MED-195","جليبتس بلس 50/1000 (Gliptus Plus)","Vildagliptin 50mg + Metformin 1000mg","أدوية السكر والغدد","أقراص",145.0,45,"Eva Pharma",1],["MED-196","فورسيجا 10 (Forxiga 10)","Dapagliflozin 10mg","أدوية السكر والغدد","أقراص",420.0,20,"AstraZeneca",1],["MED-197","فوراديا 10 (Forflozin / Gliflozino 10)","Dapagliflozin 10mg","أدوية السكر والغدد","أقراص",195.0,30,"Eva Pharma",1],["MED-198","لانتوس سولوستار (Lantus SoloStar)","Insulin Glargine 100 IU/ml","أدوية السكر والغدد","قلم أنسولين",240.0,25,"Sanofi",1],["MED-199","نوفوميكس 30 فلكسبن (NovoMix 30)","Insulin Aspart 30/70","أدوية السكر والغدد","قلم أنسولين",225.0,25,"Novo Nordisk",1],["MED-200","ميكستارد 30 فيال (Mixtard 30)","Human Insulin 30/70","أدوية السكر والغدد","فيال أنسولين",95.0,35,"Novo Nordisk",1],["MED-201","إلتروكسين 50 (Eltroxin 50)","Levothyroxine 50mcg","أدوية السكر والغدد","أقراص للغدة الدرقية",52.0,50,"Aspen",1],["MED-202","إلتروكسين 100 (Eltroxin 100)","Levothyroxine 100mcg","أدوية السكر والغدد","أقراص للغدة الدرقية",64.0,50,"Aspen",1],["MED-203","يوثيروكس 50 (Euthyrox 50)","Levothyroxine 50mcg","أدوية السكر والغدد","أقراص للغدة الدرقية",58.0,45,"Merck",1],["MED-204","كاربيمازول 5 (Carbimazole 5)","Carbimazole 5mg","أدوية السكر والغدد","أقراص لنشاط الغدة",36.0,40,"CID",1],["MED-205","ميلجا (Milga)","Benfotiamine + Vitamin B6 + B12","فيتامينات ومكملات","أقراص للأعصاب",76.0,65,"Eva Pharma",0],["MED-206","ميلجا أدفانس (Milga Advance)","Benfotiamine 300mg + B6 + B12","فيتامينات ومكملات","أقراص للأعصاب",118.0,50,"Eva Pharma",0],["MED-207","نيوروتون (Neuroton)","Vitamin B1 + B2 + B6 + B12","فيتامينات ومكملات","أقراص للأعصاب",68.0,60,"Amoun",0],["MED-208","نيوروتون أمبول (Neuroton Amp)","Vitamin B Complex","فيتامينات ومكملات","حقن عضلي",58.0,50,"Amoun",0],["MED-209","بيكوزيم أمبول (Becozyme Amp)","Vitamin B Complex","فيتامينات ومكملات","حقن عضلي",72.0,45,"Bayer",0],["MED-210","نيوروروبين فورت (Neurorubine Forte)","Vitamin B1 + B6 + B12","فيتامينات ومكملات","أقراص",84.0,40,"MUP",0],["MED-211","ثايوتاسيد 600 (Thiotacid 600)","Thioctic Acid 600mg","فيتامينات ومكملات","أقراص لالتهاب الأعصاب",135.0,40,"Eva Pharma",0],["MED-212","ثايوتكس 600 (Thiotex 600)","Thioctic Acid 600mg","فيتامينات ومكملات","كبسولات",110.0,40,"Marcyrl",0],["MED-213","أوسوفورتين 10000 (Ossofortin)","Vitamin D3 10000 IU","فيتامينات ومكملات","كبسولات",72.0,50,"Eva Pharma",0],["MED-214","دافاليندي 1000 (Davalindi 1000)","Vitamin D3 1000 IU","فيتامينات ومكملات","أقراص",65.0,55,"Rameda",0],["MED-215","فيدروب 10000 (Limitless Ossofortin / Vidrop)","Vitamin D3 10000 IU","فيتامينات ومكملات","أقراص",68.0,45,"Eva Pharma",0],["MED-216","فيتاسيد سي فوار (Vitacid C)","Vitamin C 1000mg","فيتامينات ومكملات","أقراص فوارة",38.0,70,"CID",0],["MED-217","سي ريتارد 500 (C-Retard 500)","Vitamin C 500mg","فيتامينات ومكملات","كبسولات",42.0,55,"Hikma",0],["MED-218","أوكتاترون (Octatron)","Multivitamins + Minerals + Zinc","فيتامينات ومكملات","كبسولات",88.0,50,"Nerhadou",0],["MED-219","أوميجا 3 بلس (Omega 3 Plus)","Fish Oil + Wheat Germ Oil","فيتامينات ومكملات","كبسولات جيلاتينية",95.0,55,"Sedico",0],["MED-220","ليميتلس أوميجا 3 (Limitless Omega 3)","Fish Oil 2000mg","فيتامينات ومكملات","كبسولات",185.0,35,"Eva Pharma",0],["MED-221","فيروجلوبين (Feroglobin B12)","Iron + Folic Acid + Zinc + B12","فيتامينات ومكملات","كبسولات للأنيميا",118.0,45,"Vitabiotics",0],["MED-222","فيروترون (Ferrotron)","Iron + Vitamins + Minerals","فيتامينات ومكملات","كبسولات للأنيميا",92.0,45,"Nerhadou",0],["MED-223","هيماتون (Haematon)","Iron + Folic Acid + B12","فيتامينات ومكملات","كبسولات للأنيميا",58.0,50,"Pharco",0],["MED-224","فوليك أسيد 500 (Folic Acid 500mcg)","Folic Acid 500mcg","فيتامينات ومكملات","أقراص",24.0,65,"MUP",0],["MED-225","أوستيوكير (Osteocare)","Calcium + Magnesium + Vitamin D + Zinc","فيتامينات ومكملات","أقراص",105.0,50,"Vitabiotics",0],["MED-226","كالسيترون (Calcitron)","Calcium + Magnesium + Vitamin D","فيتامينات ومكملات","كبسولات",88.0,45,"Nerhadou",0],["MED-227","سنترام للبالغين (Centrum)","Multivitamins & Minerals","فيتامينات ومكملات","أقراص",320.0,25,"Haleon",0],["MED-228","ليميتلس مان ماكس (Limitless Man Max)","Multivitamins for Men","فيتامينات ومكملات","أقراص",195.0,30,"Eva Pharma",0],["MED-229","ليميتلس وومان ماكس (Limitless Woman Max)","Multivitamins for Women","فيتامينات ومكملات","أقراص",195.0,30,"Eva Pharma",0],["MED-230","بانتوجار (Pantogar)","Cystine + Keratin + Vitamin B","فيتامينات ومكملات","كبسولات للشعر",285.0,25,"Merz",0],["MED-231","بيوتين فورت (Biotin Forte 5mg)","Biotin 5mg","فيتامينات ومكملات","كبسولات للشعر",64.0,45,"Eva Pharma",0],["MED-232","رويال فيت جي (Royal Vit G)","Royal Jelly + Ginseng + Multivitamins","فيتامينات ومكملات","كبسولات",86.0,45,"Sedico",0],["MED-233","كيروفيت (Kerovit)","Multivitamins + Amino Acids + Ginseng","فيتامينات ومكملات","كبسولات",98.0,40,"Amoun",0],["MED-234","ماغنسيوم بلس (Magnesium Plus)","Magnesium 400mg + Vitamin B6","فيتامينات ومكملات","أقراص",68.0,45,"Eva Pharma",0],["MED-235","فيوسيدين كريم أحمر (Fucidin Cream)","Fusidic Acid 2%","جلدية وموضعي","كريم مضاد حيوي",58.0,55,"LEO Pharma",0],["MED-236","فيوسيكورت كريم (Fucicort Cream)","Fusidic Acid + Betamethasone","جلدية وموضعي","كريم موضعي",66.0,45,"LEO Pharma",0],["MED-237","فيوسي زون كريم (Fucizone Cream)","Fusidic Acid + Betamethasone","جلدية وموضعي","كريم موضعي",42.0,50,"Minapharm",0],["MED-238","جاراميسين كريم (Garamycin Cream)","Gentamicin 0.1%","جلدية وموضعي","كريم مضاد حيوي",28.0,55,"Memphis",0],["MED-239","كيناكومب كريم (Kenacomb)","Triamcinolone + Neomycin + Nystatin","جلدية وموضعي","كريم موضعي",52.0,45,"SmithKline",0],["MED-240","ميكسدرم كريم (Mixderm Cream)","Betamethasone + Gentamicin + Tolnaftate","جلدية وموضعي","كريم موضعي",32.0,55,"EIPICO",0],["MED-241","إليكا إم كريم (Elica-M Cream)","Mometasone + Miconazole","جلدية وموضعي","كريم موضعي",48.0,45,"Jamjoom",0],["MED-242","بيتاديرم كريم (Betaderm Cream)","Betamethasone 0.1%","جلدية وموضعي","كريم للحساسية",26.0,60,"EIPICO",0],["MED-243","لاميزيل كريم (Lamisil Cream)","Terbinafine 1%","جلدية وموضعي","كريم مضاد للفطريات",78.0,35,"Novartis",0],["MED-244","لاميفين كريم (Lamifen Cream)","Terbinafine 1%","جلدية وموضعي","كريم مضاد للفطريات",36.0,45,"Global Napi",0],["MED-245","ميبو مرهم للحروق (Mebo Ointment 30g)","Beta-Sitosterol 0.25%","جلدية وموضعي","مرهم للحروق",115.0,50,"Julphar",0],["MED-246","ديرمازين كريم (Dermazin Cream)","Silver Sulfadiazine 1%","جلدية وموضعي","كريم للحروق",44.0,45,"Sandoz",0],["MED-247","بانثينول كريم (Panthenol Cream 2%)","Dexpanthenol 2%","جلدية وموضعي","كريم مرطب",35.0,75,"Nile Pharma",0],["MED-248","بيبانثين كريم أزرق (Bepanthen Cream)","Dexpanthenol 5%","جلدية وموضعي","كريم مرطب",145.0,35,"Bayer",0],["MED-249","أدبالين جل (Adapalene Gel)","Adapalene 0.1%","جلدية وموضعي","جل لحب الشباب",42.0,45,"Marcyrl",0],["MED-250","أكريتين 0.05 كريم (Acretin 0.05%)","Tretinoin 0.05%","جلدية وموضعي","كريم لحب الشباب",38.0,50,"Jamjoom",0],["MED-251","أكنى فري كريم (Acne Free)","Tretinoin 0.05%","جلدية وموضعي","كريم لحب الشباب",26.0,45,"Nile Pharma",0],["MED-252","ستارفيل غسول للبشرة الدهنية (Starville)","Tea Tree Oil + Salicylic Acid","جلدية وموضعي","غسول للوجه",135.0,30,"Parkville",0],["MED-253","شامبو نيزورال (Nizoral Shampoo)","Ketoconazole 2%","جلدية وموضعي","شامبو للقشرة",98.0,35,"Janssen",0],["MED-254","شامبو نيزابكس (Nizapex Shampoo)","Ketoconazole 2%","جلدية وموضعي","شامبو للقشرة",46.0,50,"Multi-Apex",0],["MED-255","سودو كريم (Sudocrem 60g)","Zinc Oxide + Benzyl Alcohol","جلدية وموضعي","كريم للتسلخات",165.0,35,"Teva",0],["MED-256","زنك أوليف كريم (Zinc Olive)","Zinc Oxide + Olive Oil","جلدية وموضعي","كريم للتسلخات",48.0,55,"Macro",0],["MED-257","بيرفورما إكسترا 5% (Performa Extra)","Minoxidil 5%","جلدية وموضعي","بخاخ لتساقط الشعر",125.0,35,"Eva Pharma",0],["MED-258","فولتارين إيمولجل (Voltaren Emulgel)","Diclofenac Diethylamine 1%","عظام ومفاصل","جل موضعي",92.0,45,"Novartis",0],["MED-259","ريباريل جل (Reparil-Gel N)","Aescin + Diethylamine Salicylate","عظام ومفاصل","جل موضعي",64.0,50,"Madaus",0],["MED-260","مووف كريم (Moov Cream)","Wintergreen Oil + Menthol","عظام ومفاصل","كريم مسكن",75.0,45,"Reckitt",0],["MED-261","ألفينترن (Alphintern)","Chymotrypsin + Trypsin","عظام ومفاصل","أقراص مضادة للتورم",68.0,65,"Amoun",0],["MED-262","أمبيزيم جي (Ambezim-G)","Chymotrypsin + Trypsin","عظام ومفاصل","أقراص مضادة للتورم",58.0,55,"Global Napi",0],["MED-263","ميولجين (Myolgin)","Chlorzoxazone + Paracetamol","عظام ومفاصل","كبسولات باسط عضلات",42.0,55,"Glaxo",0],["MED-264","مارك فاست (Mark Fast)","Chlorzoxazone + Paracetamol","عظام ومفاصل","كبسولات باسط عضلات",38.0,45,"Marcyl",0],["MED-265","ديمرا (Dimra)","Diclofenac Potassium + Methocarbamol","عظام ومفاصل","أقراص باسط عضلات",58.0,50,"October Pharma",0],["MED-266","مالتي ريلاكس 10 (Multi-Relax 10)","Cyclobenzaprine 10mg","عظام ومفاصل","أقراص باسط عضلات",54.0,45,"Multi-Apex",1],["MED-267","سيردالود 2 (Sirdalud 2)","Tizanidine 2mg","عظام ومفاصل","أقراص باسط عضلات",68.0,35,"Novartis",1],["MED-268","دوروفين (Dorofen)","Glucosamine + Ginkgo Biloba","عظام ومفاصل","كبسولات لخشونة المفاصل",115.0,40,"Liptis",0],["MED-269","جينوفيل (Genuphil)","Glucosamine + Chondroitin + MSM","عظام ومفاصل","أقراص لخشونة المفاصل",155.0,35,"Eva Pharma",0],["MED-270","كولاجين سي إتش ألفا (CH-Alpha Plus)","Bioactive Collagen Peptides","عظام ومفاصل","أمبولات للشرب",420.0,15,"Gelita",0],["MED-271","زيلوريك 100 (Zyloric 100)","Allopurinol 100mg","عظام ومفاصل","أقراص للنقرس",42.0,50,"GSK",1],["MED-272","نوريك 300 (No-Uric 300)","Allopurinol 300mg","عظام ومفاصل","أقراص للنقرس",48.0,45,"EIPICO",1],["MED-273","فيبوريك 80 (Feburic 80)","Febuxostat 80mg","عظام ومفاصل","أقراص للنقرس",125.0,35,"Hikma",1],["MED-274","سيتال شراب للأطفال (Cetal Syrup)","Paracetamol 250mg/5ml","أدوية أطفال","شراب خافض حرارة",28.0,65,"EIPICO",0],["MED-275","سيتال نقط للرضع (Cetal Drops)","Paracetamol 100mg/ml","أدوية أطفال","نقط للرضع",26.0,60,"EIPICO",0],["MED-276","أبيمول شراب (Abimol Syrup)","Paracetamol 150mg/5ml","أدوية أطفال","شراب خافض حرارة",24.0,55,"GSK Egypt",0],["MED-277","بروفين شراب للأطفال (Brufen Syrup)","Ibuprofen 100mg/5ml","أدوية أطفال","شراب خافض حرارة",46.0,55,"Abbott",0],["MED-278","كتافلاي شراب (Catafly Syrup)","Diclofenac Potassium 2mg/ml","أدوية أطفال","شراب خافض حرارة",42.0,45,"Novartis",0],["MED-279","دولفين 12.5 لبوس (Dolphin 12.5 Supp)","Diclofenac Sodium 12.5mg","أدوية أطفال","لبوس خافض حرارة",26.0,55,"Delta Pharma",0],["MED-280","دولفين 25 لبوس (Dolphin 25 Supp)","Diclofenac Sodium 25mg","أدوية أطفال","لبوس خافض حرارة",30.0,50,"Delta Pharma",0],["MED-281","أوجمنتين شراب 457 (Augmentin 457)","Amoxicillin + Clavulanic Acid","أدوية أطفال","شراب مضاد حيوي",110.0,40,"GSK",1],["MED-282","هايبوتك شراب 457 (Hibiotic 457)","Amoxicillin + Clavulanic Acid","أدوية أطفال","شراب مضاد حيوي",88.0,45,"Amoun",1],["MED-283","كيورام شراب 457 (Curam 457)","Amoxicillin + Clavulanic Acid","أدوية أطفال","شراب مضاد حيوي",84.0,40,"Sandoz",1],["MED-284","زيثروماكس شراب (Zithromax Susp)","Azithromycin 200mg/5ml","أدوية أطفال","شراب مضاد حيوي",96.0,35,"Pfizer",1],["MED-285","سوبراكس شراب (Suprax Susp)","Cefixime 100mg/5ml","أدوية أطفال","شراب مضاد حيوي",105.0,30,"Hikma",1],["MED-286","في دروب نقط (Vi-Drop)","Vitamin D3 2800 IU/ml","أدوية أطفال","نقط للفم",32.0,70,"MUP",0],["MED-287","سايمثيكون نقط للمغص (Simethicone)","Simethicone 2%","أدوية أطفال","نقط للمغص",34.0,55,"Pharco",0],["MED-288","دنتينوكس نقط (Dentinox Drops)","Simethicone","أدوية أطفال","نقط للمغص",48.0,45,"DDD",0],["MED-289","محلول معالجة الجفاف (ORS)","Oral Rehydration Salts","أدوية أطفال","أكياس",18.0,85,"CID",0],["MED-290","أنتينال شراب (Antinal Susp)","Nifuroxazide 220mg/5ml","أدوية أطفال","شراب للإسهال",38.0,50,"Amoun",0],["MED-291","فلاجيل شراب (Flagyl Susp)","Metronidazole 125mg/5ml","أدوية أطفال","شراب مطهر معوي",30.0,55,"Sanofi",1],["MED-292","أوتريفين بيبي سالين (Otrivin Baby)","Isotonic Saline Solution","أدوية أطفال","نقط للأنف",48.0,60,"Novartis",0],["MED-293","لايس نقط للأنف (Lyse Drops)","Saline Solution","أدوية أطفال","نقط للأنف",24.0,60,"EIPICO",0],["MED-294","كونجستال شراب (Congestal Syrup)","Paracetamol + Chlorpheniramine + Pseudoephedrine","أدوية أطفال","شراب للبرد",36.0,55,"Sigma",0],["MED-295","إيفيروسبان شراب (Ivyrospan)","Ivy Leaf Extract","أدوية أطفال","شراب للكحة",54.0,45,"Rameda",0],["MED-296","بريدسول شراب (Predsol Syrup)","Prednisolone 5mg/5ml","أدوية أطفال","شراب للحساسية",36.0,40,"Borg",1],["MED-297","سولبريد فورت (Predsol Forte)","Prednisolone 15mg/5ml","أدوية أطفال","شراب للحساسية",48.0,40,"Borg",1],["MED-298","توبراديكس قطرة (Tobradex Eye Drops)","Tobramycin + Dexamethasone","عيون وأذن","قطرة للعين",72.0,45,"Alcon",1],["MED-299","توبريكس قطرة (Tobrex Eye Drops)","Tobramycin 0.3%","عيون وأذن","قطرة مضاد حيوي",58.0,50,"Alcon",1],["MED-300","سيستان ألترا قطرة (Systane Ultra)","Polyethylene Glycol + Propylene Glycol","عيون وأذن","قطرة مرطبة للعين",145.0,35,"Alcon",0],["MED-301","بولي فريش قطرة (Polyfresh Eye Drops)","Sodium Hyaluronate 0.2%","عيون وأذن","قطرة مرطبة للعين",62.0,50,"Orchidia",0],["MED-302","ريفريش تيرز قطرة (Refresh Tears)","Carboxymethylcellulose 0.5%","عيون وأذن","قطرة مرطبة للعين",96.0,40,"Allergan",0],["MED-303","بريزولين قطرة (Prisoline Drops)","Naphazoline + Chlorpheniramine","عيون وأذن","قطرة لاحمرار العين",28.0,60,"Kahira",0],["MED-304","باتانول قطرة (Patanol Eye Drops)","Olopatadine 0.1%","عيون وأذن","قطرة لحساسية العين",115.0,35,"Alcon",1],["MED-305","فيجاموكس قطرة (Vigamox Eye Drops)","Moxifloxacin 0.5%","عيون وأذن","قطرة مضاد حيوي",135.0,30,"Alcon",1],["MED-306","فيابين نقط للأذن (Viotic / Remowax)","Dexamethasone + Flumetasone","عيون وأذن","نقط للأذن",42.0,45,"Amoun",1],["MED-307","واكسول نقط للأذن (Waxsol Ear Drops)","Docusate Sodium 0.5%","عيون وأذن","نقط لإذابة الشمع",46.0,45,"MUP",0],["MED-308","بيتاسيرك 16 (Betaserc 16)","Betahistine 16mg","عيون وأذن","أقراص للدوار والاتزان",125.0,40,"Abbott",1],["MED-309","فيرسيرك 16 (Verserc 16)","Betahistine 16mg","عيون وأذن","أقراص للدوار والاتزان",64.0,45,"Global Napi",1],["MED-310","فوار يوريفين (Urivin Effervescent)","Colchicine + Khellin + Piperazine","مسالك ونساء","أكياس فوارة للأملاح",36.0,60,"ADWIA",0],["MED-311","فوار إبيماج (Epimag Effervescent)","Magnesium Citrate","مسالك ونساء","أكياس فوارة للأملاح",38.0,60,"EIPICO",0],["MED-312","فوار فيتامين سي + بروكسيمول (Proximol)","Halfa Bar Extract","مسالك ونساء","أكياس فوارة للحصوات",34.0,55,"Kahira",0],["MED-313","رواتينكس (Rowatinex)","Essential Oils Complex","مسالك ونساء","كبسولات لحصوات الكلى",88.0,45,"Amoun",0],["MED-314","كيلين / يورينكس (Urinex)","Essential Oils Complex","مسالك ونساء","كبسولات لحصوات الكلى",48.0,50,"Pharco",0],["MED-315","تامسولين 0.4 (Tamsulin 0.4)","Tamsulosin 0.4mg","مسالك ونساء","كبسولات للبروستاتا",115.0,35,"Marcyrl",1],["MED-316","أومنيك أوكاس 0.4 (Omnic Ocas)","Tamsulosin 0.4mg","مسالك ونساء","أقراص للبروستاتا",210.0,25,"Astellas",1],["MED-317","بيبون بلس (Pepon Plus)","Pumpkin Seed Oil + Saw Palmetto","مسالك ونساء","كبسولات للبروستاتا",92.0,40,"MUP",0],["MED-318","مونورول كيس (Monuril 3g)","Fosfomycin 3g","مسالك ونساء","كيس فوار لالتهاب المسالك",115.0,35,"Zambon",1],["MED-319","يوفامين ريتارد (Uvamin Retard)","Nitrofurantoin 100mg","مسالك ونساء","كبسولات لالتهاب المسالك",54.0,45,"MUP",1],["MED-320","دوفاستون 10 (Duphaston 10)","Dydrogesterone 10mg","مسالك ونساء","أقراص مثبت حمل",235.0,30,"Abbott",1],["MED-321","برونتوجيست 400 لبوس (Prontogest 400)","Progesterone 400mg","مسالك ونساء","لبوس مهبلي",225.0,25,"Marcyrl",1],["MED-322","كابرون 500 (Kapron 500)","Tranexamic Acid 500mg","مسالك ونساء","أقراص لوقف النزيف",68.0,40,"Amoun",1],["MED-323","دافلون / دايسينون 500 (Dicynone 500)","Etamsylate 500mg","مسالك ونساء","أقراص لوقف النزيف",85.0,35,"OM Pharma",1],["MED-324","ميكروجينون 30 (Microgynon 30)","Ethinylestradiol + Levonorgestrel","مسالك ونساء","أقراص تنظيم الأسرة",54.0,45,"Bayer",1],["MED-325","جينيرا (Gynera)","Gestodene + Ethinylestradiol","مسالك ونساء","أقراص تنظيم الأسرة",88.0,40,"Bayer",1],["MED-326","جولد / غسول بيتادين مهبلي (Betadine Douche)","Povidone Iodine 10%","مسالك ونساء","غسول مطهر",76.0,40,"Nile Pharma",0],["MED-327","جينوزول 400 لبوس (Gynozol 400)","Miconazole 400mg","مسالك ونساء","لبوس مهبلي للفطريات",42.0,45,"Pharco",0],["MED-328","بيتادين مطهر جروح (Betadine 120ml)","Povidone Iodine 10%","مستلزمات وإسعافات","محلول مطهر",68.0,50,"Nile Pharma",0],["MED-329","كحول إيثيلي 70% بخاخ (Alcohol 70%)","Ethyl Alcohol 70%","مستلزمات وإسعافات","بخاخ مطهر",35.0,65,"Local",0],["MED-330","محلول ملح معقم 500 مل (Normal Saline)","Sodium Chloride 0.9%","مستلزمات وإسعافات","محلول وريدي",25.0,50,"Otsuka",1],["MED-331","بلاستر طبي مقاوم للماء (Waterproof Plaster)","Medical Adhesive Strip","مستلزمات وإسعافات","علبة 20 شريط",30.0,60,"Pharmaplast",0],["MED-332","شاش طبي معقم (Sterile Gauze)","100% Cotton Gauze","مستلزمات وإسعافات","عبوة معقمة",22.0,70,"Pharmaplast",0],["MED-333","قطن طبي 100 جم (Medical Cotton)","100% Pure Cotton","مستلزمات وإسعافات","عبوة 100 جم",28.0,60,"Local",0],["MED-334","سرنجة أنسولين 100 وحدة (Insulin Syringe)","Sterile Syringe","مستلزمات وإسعافات","علبة 10 سرنجات",35.0,60,"Ameco",0],["MED-335","شرائط قياس السكر أكيوتشيك (Accu-Chek Active)","Blood Glucose Test Strips","مستلزمات وإسعافات","علبة 50 شريط",390.0,25,"Roche",0],["MED-336","ترمومتر ديجيتال (Digital Thermometer)","Digital Medical Device","مستلزمات وإسعافات","جهاز قياس حرارة",95.0,30,"Granzia",0],["MED-337","كمامة طبية (Surgical Face Mask)","3-Ply Medical Mask","مستلزمات وإسعافات","علبة 50 كمامة",65.0,45,"Local",0],["MED-338","اختبار حمل منزلي (Pregnancy Test)","hCG Urine Test Strip","مستلزمات وإسعافات","شريط اختبار",25.0,65,"BabyCheck",0]];
+
+const STORAGE_KEYS = {
+  MEDS: 'wn_pharmacy_meds_v3_338',
+  ORDERS: 'wn_pharmacy_orders_v3',
+  CART: 'wn_pharmacy_cart_v3',
+  SETTINGS: 'wn_pharmacy_settings_v3',
+  ADMIN: 'wn_pharmacy_admin_session'
+};
+
+const safeStorage = {
+  get(k, fallback){
+    try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }
+    catch(e){ return fallback; }
+  },
+  set(k, v){
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){}
+  }
+};
+
+function parseDefaultMeds(){
+  return DEFAULT_MEDS_RAW.map(r => ({
+    id: r[0], name: r[1], active: r[2], category: r[3],
+    form: r[4], price: Number(r[5]) || 0, stock: Number(r[6]) || 0,
+    company: r[7], rx: !!r[8]
+  }));
+}
+
+let state = {
+  meds: [],
+  orders: [],
+  cart: [],
+  settings: {
+    whatsapp: '201093872001',
+    address: 'صيدلية وائل ناصف — نواج، طنطا، الغربية',
+    gsheetUrl: '',
+    gsheetAuto: false
+  },
+  selectedCategory: 'الكل',
+  searchQuery: '',
+  inStockOnly: false,
+  displayLimit: 36,
+  isAdmin: false,
+  firebaseDb: null,
+  cloudOnline: false
+};
+
+// =========================================================================
+// 3. التطبيع ومنع التكرار
+// =========================================================================
+function normalizeText(str){
+  return String(str || '')
+    .toLowerCase()
+    .replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي')
+    .replace(/\s+/g,' ').trim();
+}
+
+function dedupeMedsList(list){
+  const map = new Map();
+  for(const item of list){
+    if(!item || !item.name) continue;
+    const key = normalizeText(item.name);
+    if(!map.has(key)){
+      map.set(key, {...item});
+    } else {
+      const prev = map.get(key);
+      map.set(key, {
+        ...prev,
+        ...item,
+        price: Number(item.price) > 0 ? Number(item.price) : prev.price,
+        stock: Math.max(Number(prev.stock)||0, Number(item.stock)||0)
+      });
+    }
+  }
+  return Array.from(map.values());
+}
+
+// =========================================================================
+// 4. التشغيل المبدئي ورسالة الترحيب (10 ثوانٍ)
+// =========================================================================
+let wbInterval = null;
+function startWelcomeBanner(userLabel){
+  const el = document.getElementById('welcomeBanner');
+  const timerEl = document.getElementById('wbTimer');
+  const barEl = document.getElementById('wbBar');
+  const greetEl = document.getElementById('wbGreeting');
+  greetEl.textContent = userLabel
+    ? `مرحباً، ${userLabel} — صيدلية وائل ناصف ترحب بكم 🌿`
+    : 'مرحباً بكم — صيدلية وائل ناصف ترحب بكم 🌿';
+  el.style.display = 'block';
+  const totalMs = 10000;
+  const start = Date.now();
+  clearInterval(wbInterval);
+  wbInterval = setInterval(() => {
+    const elapsed = Date.now() - start;
+    const remMs = Math.max(0, totalMs - elapsed);
+    const remSec = Math.ceil(remMs / 1000);
+    timerEl.textContent = remSec + ' ث';
+    barEl.style.width = ((remMs / totalMs) * 100).toFixed(1) + '%';
+    if(remMs <= 0) closeWelcome();
+  }, 100);
+}
+function closeWelcome(){
+  clearInterval(wbInterval);
+  document.getElementById('welcomeBanner').style.display = 'none';
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._tm);
+  t._tm = setTimeout(() => { t.style.display = 'none'; }, 3200);
+}
+
+function initApp(){
+  const savedMeds = safeStorage.get(STORAGE_KEYS.MEDS, null);
+  if(Array.isArray(savedMeds) && savedMeds.length >= 100){
+    state.meds = dedupeMedsList(savedMeds);
+  } else {
+    state.meds = parseDefaultMeds();
+    safeStorage.set(STORAGE_KEYS.MEDS, state.meds);
+  }
+  state.orders = safeStorage.get(STORAGE_KEYS.ORDERS, []);
+  state.cart = safeStorage.get(STORAGE_KEYS.CART, []);
+  state.settings = Object.assign(state.settings, safeStorage.get(STORAGE_KEYS.SETTINGS, {}));
+  state.isAdmin = safeStorage.get(STORAGE_KEYS.ADMIN, false) === true;
+
+  renderCategories();
+  renderMeds();
+  updateCartUI();
+  updateAdminBtn();
+  startWelcomeBanner(state.isAdmin ? 'HemaMohamed' : '');
+
+  // Optional Service Worker registration
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+
+  // Optional Firebase Cloud Sync
+  initFirebaseIfConfigured();
+
+  // Optional Auto Google Sheets Sync
+  if(state.settings.gsheetAuto && state.settings.gsheetUrl){
+    syncGoogleSheet(false);
+  }
+}
+
+// =========================================================================
+// 5. العرض والبحث والفلترة (338 صنفاً بسلاسة فائقة)
+// =========================================================================
+function getFilteredMeds(){
+  const q = normalizeText(state.searchQuery);
+  return state.meds.filter(m => {
+    if(state.selectedCategory !== 'الكل' && m.category !== state.selectedCategory) return false;
+    if(state.inStockOnly && (Number(m.stock) || 0) <= 0) return false;
+    if(!q) return true;
+    return normalizeText(m.name).includes(q)
+      || normalizeText(m.active).includes(q)
+      || normalizeText(m.id).includes(q)
+      || normalizeText(m.company).includes(q)
+      || normalizeText(m.category).includes(q);
+  });
+}
+
+function renderCategories(){
+  const counts = {};
+  for(const m of state.meds){
+    counts[m.category] = (counts[m.category] || 0) + 1;
+  }
+  const cats = ['الكل', ...Object.keys(counts)];
+  const wrap = document.getElementById('catsWrap');
+  wrap.innerHTML = cats.map(c => {
+    const cnt = c === 'الكل' ? state.meds.length : counts[c];
+    const cls = c === state.selectedCategory ? 'cat-btn active' : 'cat-btn';
+    return `<button class="${cls}" onclick="selectCategory('${c.replace(/'/g,"\\'")}')">${c} (${cnt})</button>`;
+  }).join('');
+}
+
+function selectCategory(cat){
+  state.selectedCategory = cat;
+  state.displayLimit = 36;
+  renderCategories();
+  renderMeds();
+}
+
+function handleSearch(){
+  state.searchQuery = document.getElementById('searchInput').value;
+  state.inStockOnly = document.getElementById('inStockOnly').checked;
+  state.displayLimit = 36;
+  renderMeds();
+}
+
+function loadMore(){
+  state.displayLimit += 48;
+  renderMeds();
+}
+
+function renderMeds(){
+  const filtered = getFilteredMeds();
+  const visible = filtered.slice(0, state.displayLimit);
+  document.getElementById('resultsCount').textContent =
+    `عرض ${visible.length} من إجمالي ${filtered.length} صنفاً (قاعدة البيانات: ${state.meds.length} صنفاً)`;
+
+  const grid = document.getElementById('medsGrid');
+  if(!visible.length){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:36px;background:#fff;border-radius:14px;color:var(--muted);">
+      لم يتم العثور على أصناف مطابقة للبحث.<br><br>
+      <button class="btn-primary" onclick="openModal('rxModal')">📸 اطلب الدواء مباشرة عبر الواتساب</button>
+    </div>`;
+    document.getElementById('loadMoreWrap').style.display = 'none';
+    return;
+  }
+
+  grid.innerHTML = visible.map(m => {
+    const st = Number(m.stock) || 0;
+    const isOut = st <= 0;
+    const stockClass = isOut ? 'zero' : (st <= 15 ? 'low' : '');
+    const stockLabel = isOut ? 'غير متوفر حالياً' : `متوفر (${st})`;
+    const safeId = m.id.replace(/'/g,"\\'");
+    return `<article class="card ${isOut ? 'out' : ''}">
+      <div>
+        <div class="card-top">
+          <span class="code-tag">${m.id}</span>
+          <span class="${m.rx ? 'rx-tag' : 'otc-tag'}">${m.rx ? 'بروشتة ⚕️' : 'بدون روشتة'}</span>
+        </div>
+        <div class="med-name" style="margin-top:6px;">${escapeHtml(m.name)}</div>
+        <div class="med-active">${escapeHtml(m.active)}</div>
+        <div class="med-meta">
+          <span>${escapeHtml(m.category)}</span>
+          ${m.form ? `<span>${escapeHtml(m.form)}</span>` : ''}
+          ${m.company ? `<span>${escapeHtml(m.company)}</span>` : ''}
+        </div>
+      </div>
+      <div>
+        <div class="card-bottom">
+          <div>
+            <div class="price">${Number(m.price).toFixed(2)} <small>ج.م</small></div>
+            <div class="stock-txt ${stockClass}">${stockLabel}</div>
+          </div>
+        </div>
+        <div class="card-btns">
+          ${isOut
+            ? `<button class="btn-alt prominent" onclick="showAlternatives('${safeId}')">💊 عرض البدائل المتاحة</button>`
+            : `<button class="btn-add" onclick="addToCart('${safeId}')">+ أضف للسلة</button>
+               <button class="btn-alt" onclick="showAlternatives('${safeId}')" title="البدائل بنفس المادة الفعالة">البدائل 💊</button>`
+          }
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+
+  document.getElementById('loadMoreWrap').style.display =
+    filtered.length > state.displayLimit ? 'block' : 'none';
+}
+
+function escapeHtml(s){
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// =========================================================================
+// 6. محرك البدائل التلقائية (نفس المادة الفعالة)
+// =========================================================================
+function showAlternatives(medId){
+  const target = state.meds.find(m => m.id === medId);
+  if(!target) return;
+  const normActive = normalizeText(target.active);
+  const alts = state.meds.filter(m =>
+    m.id !== target.id && normalizeText(m.active) === normActive
+  ).sort((a,b) => a.price - b.price);
+
+  document.getElementById('altTitle').textContent = `بدائل: ${target.name}`;
+  const body = document.getElementById('altBody');
+  let html = `<div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:10px;border-radius:10px;margin-bottom:12px;font-size:13px;">
+    <strong>المادة الفعالة:</strong> <span dir="ltr">${escapeHtml(target.active)}</span> • <strong>السعر الأصلي:</strong> ${target.price.toFixed(2)} ج.م
+  </div>`;
+
+  if(!alts.length){
+    html += `<p style="text-align:center;color:var(--muted);padding:20px 0;">لا توجد بدائل مسجلة بنفس المادة الفعالة حالياً في القائمة. يمكنك استشارة الصيدلي عبر واتساب.</p>`;
+  } else {
+    html += alts.map(a => {
+      const diff = a.price - target.price;
+      const diffTxt = diff < 0
+        ? `<span style="color:#15803d;font-weight:700;">أوفر بـ ${Math.abs(diff).toFixed(1)} ج.م</span>`
+        : (diff > 0 ? `<span style="color:#b45309;">+${diff.toFixed(1)} ج.م</span>` : 'نفس السعر');
+      const avail = (Number(a.stock)||0) > 0;
+      return `<div class="alt-card">
+        <div>
+          <div style="font-weight:800;color:var(--navy);">${escapeHtml(a.name)}</div>
+          <div style="font-size:12px;color:var(--muted);">${escapeHtml(a.company)} • ${escapeHtml(a.form)} • ${diffTxt}</div>
+        </div>
+        <div style="text-align:left;">
+          <div style="font-weight:900;color:var(--primary);margin-bottom:4px;">${a.price.toFixed(2)} ج.م</div>
+          <button class="btn-add" style="padding:6px 12px;" ${avail ? '' : 'disabled'} onclick="addToCart('${a.id.replace(/'/g,"\\'")}');closeModal('altModal')">${avail ? '+ للسلة' : 'غير متوفر'}</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  body.innerHTML = html;
+  openModal('altModal');
+}
+
+// =========================================================================
+// 7. السلة وإرسال الطلبات عبر واتساب
+// =========================================================================
+function addToCart(medId){
+  const med = state.meds.find(m => m.id === medId);
+  if(!med) return;
+  const ex = state.cart.find(c => c.id === medId);
+  if(ex) ex.qty += 1;
+  else state.cart.push({ id: med.id, name: med.name, price: med.price, qty: 1 });
+  safeStorage.set(STORAGE_KEYS.CART, state.cart);
+  updateCartUI();
+  showToast(`تمت إضافة "${med.name}" إلى السلة`);
+}
+
+function changeQty(medId, delta){
+  const idx = state.cart.findIndex(c => c.id === medId);
+  if(idx === -1) return;
+  state.cart[idx].qty += delta;
+  if(state.cart[idx].qty <= 0) state.cart.splice(idx, 1);
+  safeStorage.set(STORAGE_KEYS.CART, state.cart);
+  updateCartUI();
+  renderCartModal();
+}
+
+function updateCartUI(){
+  const count = state.cart.reduce((s,c) => s + c.qty, 0);
+  const total = state.cart.reduce((s,c) => s + c.qty * c.price, 0);
+  document.getElementById('hdrCartCount').textContent = count;
+  document.getElementById('fabCount').textContent = `${count} أصناف`;
+  document.getElementById('fabTotal').textContent = `${total.toFixed(2)} ج.م`;
+  document.getElementById('fabCart').classList.toggle('show', count > 0);
+}
+
+function openCart(){
+  renderCartModal();
+  openModal('cartModal');
+}
+
+function renderCartModal(){
+  const list = document.getElementById('cartItemsList');
+  const form = document.getElementById('cartCheckoutForm');
+  if(!state.cart.length){
+    list.innerHTML = `<p style="text-align:center;color:var(--muted);padding:26px 0;">السلة فارغة حالياً — أضف الأدوية التي تحتاجها من المتجر.</p>`;
+    form.style.display = 'none';
+    return;
+  }
+  const total = state.cart.reduce((s,c) => s + c.qty * c.price, 0);
+  list.innerHTML = state.cart.map(c => `<div class="cart-item">
+    <div>
+      <div style="font-weight:800;font-size:13.5px;">${escapeHtml(c.name)}</div>
+      <div style="font-size:12px;color:var(--muted);">${c.price.toFixed(2)} ج.م × ${c.qty} = <strong>${(c.price*c.qty).toFixed(2)} ج.م</strong></div>
+    </div>
+    <div class="qty-ctrl">
+      <button onclick="changeQty('${c.id.replace(/'/g,"\\'")}',-1)">-</button>
+      <strong>${c.qty}</strong>
+      <button onclick="changeQty('${c.id.replace(/'/g,"\\'")}',1)">+</button>
+    </div>
+  </div>`).join('');
+  document.getElementById('cartTotalTxt').textContent = total.toFixed(2) + ' ج.م';
+  form.style.display = 'block';
+}
+
+function submitOrder(){
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const addr = document.getElementById('custAddr').value.trim();
+  const notes = document.getElementById('custNotes').value.trim();
+  if(!name || !phone || !addr){
+    showToast('برجاء كتابة الاسم والموبايل والعنوان');
+    return;
+  }
+  const total = state.cart.reduce((s,c) => s + c.qty * c.price, 0);
+  const order = {
+    id: 'ORD-' + Date.now().toString().slice(-6),
+    date: new Date().toLocaleString('ar-EG'),
+    customer: name, phone, address: addr, notes,
+    items: [...state.cart],
+    total
+  };
+  state.orders.unshift(order);
+  safeStorage.set(STORAGE_KEYS.ORDERS, state.orders);
+  saveOrderToCloud(order);
+
+  const lines = [
+    `*طلب جديد — صيدلية وائل ناصف* 🌿`,
+    `رقم الطلب: ${order.id}`,
+    `العميل: ${name}`,
+    `الموبايل: ${phone}`,
+    `العنوان: ${addr}`,
+    `------------------`,
+    ...order.items.map(i => `• ${i.name} (×${i.qty}) = ${(i.price*i.qty).toFixed(2)} ج.م`),
+    `------------------`,
+    `*الإجمالي: ${total.toFixed(2)} ج.م*`,
+    notes ? `ملاحظات: ${notes}` : ''
+  ].filter(Boolean).join('\n');
+
+  state.cart = [];
+  safeStorage.set(STORAGE_KEYS.CART, []);
+  updateCartUI();
+  closeModal('cartModal');
+  showToast('تم تسجيل الطلب! جاري فتح الواتساب...');
+  window.open(`https://wa.me/${state.settings.whatsapp}?text=${encodeURIComponent(lines)}`, '_blank');
+}
+
+function previewRx(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const img = document.getElementById('rxPreview');
+  img.src = URL.createObjectURL(f);
+  img.style.display = 'block';
+}
+
+function sendRxWhatsApp(){
+  const name = document.getElementById('rxName').value.trim();
+  const phone = document.getElementById('rxPhone').value.trim();
+  const addr = document.getElementById('rxAddr').value.trim();
+  const notes = document.getElementById('rxNotes').value.trim();
+  if(!name || !phone){ showToast('اكتب الاسم ورقم الموبايل'); return; }
+  const msg = `*روشتة / استفسار — صيدلية وائل ناصف* 📄\nالاسم: ${name}\nالموبايل: ${phone}\nالعنوان: ${addr || '-'}\nالتفاصيل: ${notes || 'مرفق صورة الروشتة في المحادثة'}`;
+  closeModal('rxModal');
+  window.open(`https://wa.me/${state.settings.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// =========================================================================
+// 8. الإدارة والتحكم الكامل (HemaMohamed / 332000##)
+// =========================================================================
+function updateAdminBtn(){
+  const btn = document.getElementById('adminBtn');
+  btn.textContent = state.isAdmin ? '⚙️ لوحة الإدارة' : '🔐 الإدارة';
+}
+
+function openAdminOrLogin(){
+  if(state.isAdmin){
+    openAdminPanel();
+  } else {
+    openModal('loginModal');
+  }
+}
+
+function doAdminLogin(){
+  const u = document.getElementById('admUser').value.trim();
+  const p = document.getElementById('admPass').value.trim();
+  if(u === 'HemaMohamed' && p === '332000##'){
+    state.isAdmin = true;
+    safeStorage.set(STORAGE_KEYS.ADMIN, true);
+    updateAdminBtn();
+    closeModal('loginModal');
+    startWelcomeBanner('HemaMohamed');
+    openAdminPanel();
+  } else {
+    showToast('بيانات الدخول غير صحيحة');
+  }
+}
+
+function adminLogout(){
+  state.isAdmin = false;
+  safeStorage.set(STORAGE_KEYS.ADMIN, false);
+  updateAdminBtn();
+  closeModal('adminModal');
+  showToast('تم تسجيل الخروج من الإدارة');
+}
+
+function openAdminPanel(){
+  renderAdminKpis();
+  renderAdminTable();
+  renderAdminOrders();
+  document.getElementById('gsheetUrl').value = state.settings.gsheetUrl || '';
+  document.getElementById('gsheetAuto').checked = !!state.settings.gsheetAuto;
+  document.getElementById('setWhatsapp').value = state.settings.whatsapp || '';
+  document.getElementById('setAddress').value = state.settings.address || '';
+  openModal('adminModal');
+}
+
+function switchAdminTab(name, btn){
+  ['inv','sync','orders','settings'].forEach(t => {
+    document.getElementById('tab_' + t).style.display = t === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.atab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function renderAdminKpis(){
+  const totalItems = state.meds.length;
+  const lowStock = state.meds.filter(m => (Number(m.stock)||0) <= 15).length;
+  const invValue = state.meds.reduce((s,m) => s + (Number(m.price)||0)*(Number(m.stock)||0), 0);
+  document.getElementById('adminKpis').innerHTML = `
+    <div class="kpi-card"><small>إجمالي الأصناف</small><strong>${totalItems}</strong></div>
+    <div class="kpi-card"><small>نواقص / مخزون منخفض</small><strong style="color:${lowStock?'#dc2626':'#16a34a'}">${lowStock}</strong></div>
+    <div class="kpi-card"><small>إجمالي الطلبات</small><strong>${state.orders.length}</strong></div>
+    <div class="kpi-card"><small>قيمة المخزون (ج.م)</small><strong>${Math.round(invValue).toLocaleString('ar-EG')}</strong></div>
+  `;
+}
+
+function renderAdminTable(){
+  const q = normalizeText(document.getElementById('admSearch').value);
+  const rows = state.meds.filter(m =>
+    !q || normalizeText(m.name).includes(q) || normalizeText(m.id).includes(q) || normalizeText(m.active).includes(q)
+  ).slice(0, 80);
+  document.getElementById('admTableBody').innerHTML = rows.map(m => {
+    const safeId = m.id.replace(/'/g,"\\'");
+    return `<tr>
+      <td>${escapeHtml(m.id)}</td>
+      <td style="font-weight:700;">${escapeHtml(m.name)}</td>
+      <td>${escapeHtml(m.category)}</td>
+      <td>${Number(m.price).toFixed(2)} ج.م</td>
+      <td style="font-weight:700;color:${m.stock<=15?'#dc2626':'#15803d'}">${m.stock}</td>
+      <td>
+        <button class="btn-secondary" style="padding:4px 8px;font-size:11.5px;" onclick="editMed('${safeId}')">تعديل</button>
+        <button class="btn-danger" style="padding:4px 8px;font-size:11.5px;" onclick="deleteMed('${safeId}')">حذف</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function editMed(id){
+  const m = state.meds.find(x => x.id === id);
+  if(!m) return;
+  document.getElementById('editMedId').value = m.id;
+  document.getElementById('mCode').value = m.id;
+  document.getElementById('mName').value = m.name;
+  document.getElementById('mActive').value = m.active;
+  document.getElementById('mCat').value = m.category;
+  document.getElementById('mForm').value = m.form;
+  document.getElementById('mComp').value = m.company;
+  document.getElementById('mPrice').value = m.price;
+  document.getElementById('mStock').value = m.stock;
+  document.getElementById('mRx').checked = !!m.rx;
+  document.getElementById('mName').focus();
+}
+
+function resetMedForm(){
+  ['editMedId','mCode','mName','mActive','mCat','mForm','mComp','mPrice','mStock'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('mRx').checked = false;
+}
+
+function saveMedForm(){
+  const name = document.getElementById('mName').value.trim();
+  const price = parseFloat(document.getElementById('mPrice').value);
+  const stock = parseInt(document.getElementById('mStock').value || '0', 10);
+  if(!name || isNaN(price)){ showToast('أدخل الاسم والسعر بشكل صحيح'); return; }
+  const oldId = document.getElementById('editMedId').value;
+  const code = document.getElementById('mCode').value.trim() || ('MED-' + (state.meds.length + 1));
+  const medObj = {
+    id: code, name,
+    active: document.getElementById('mActive').value.trim(),
+    category: document.getElementById('mCat').value.trim() || 'أخرى',
+    form: document.getElementById('mForm').value.trim(),
+    company: document.getElementById('mComp').value.trim(),
+    price, stock, rx: document.getElementById('mRx').checked
+  };
+  if(oldId){
+    const idx = state.meds.findIndex(x => x.id === oldId);
+    if(idx > -1) state.meds[idx] = medObj;
+  } else {
+    state.meds.unshift(medObj);
+  }
+  persistMeds('تم حفظ الصنف بنجاح');
+  resetMedForm();
+}
+
+function deleteMed(id){
+  if(!confirm('هل تريد حذف هذا الصنف؟')) return;
+  state.meds = state.meds.filter(x => x.id !== id);
+  persistMeds('تم حذف الصنف');
+}
+
+function deduplicateAndSync(){
+  const before = state.meds.length;
+  state.meds = dedupeMedsList(state.meds);
+  const removed = before - state.meds.length;
+  persistMeds(removed > 0 ? `تم حذف ${removed} أصناف مكررة بنجاح` : 'لا توجد أصناف مكررة — القاعدة نظيفة ✅');
+}
+
+function resetToDefault338(){
+  if(!confirm('سيتم استعادة الـ 338 صنفاً الأصلية من شيت الإكسيل. متابعة؟')) return;
+  state.meds = parseDefaultMeds();
+  persistMeds('تمت استعادة 338 صنفاً بنجاح ✅');
+}
+
+function persistMeds(msg){
+  safeStorage.set(STORAGE_KEYS.MEDS, state.meds);
+  renderCategories();
+  renderMeds();
+  if(state.isAdmin){ renderAdminKpis(); renderAdminTable(); }
+  saveMedsToCloud();
+  if(msg) showToast(msg);
+}
+
+// =========================================================================
+// 9. استيراد/تصدير Excel وتحديث الأسعار الجماعي ومزامنة Google Sheets
+// =========================================================================
+function loadSheetJS(){
+  return new Promise((resolve, reject) => {
+    if(window.XLSX) return resolve(window.XLSX);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    s.onload = () => resolve(window.XLSX);
+    s.onerror = () => reject(new Error('تعذر تحميل مكتبة Excel — تأكد من الاتصال بالإنترنت'));
+    document.head.appendChild(s);
+  });
+}
+
+async function handleExcelImport(e, mode){
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    showToast('جاري قراءة ملف Excel...');
+    const XLSX = await loadSheetJS();
+    const data = await file.arrayBuffer();
+    const wb = XLSX.read(data, {type:'array'});
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, {defval:''});
+    applyImportedRows(rows, mode);
+  } catch(err){
+    showToast('خطأ: ' + err.message);
+  } finally {
+    e.target.value = '';
+  }
+}
+
+function pickField(row, keys){
+  for(const k of Object.keys(row)){
+    const nk = normalizeText(k);
+    for(const target of keys){
+      if(nk.includes(normalizeText(target))) return row[k];
+    }
+  }
+  return '';
+}
+
+function applyImportedRows(rows, mode){
+  if(!rows.length){ showToast('الملف فارغ'); return; }
+  let updated = 0, added = 0;
+  for(const r of rows){
+    const name = String(pickField(r, ['الاسم التجاري','الاسم','اسم الصنف','name','product'])).trim();
+    const code = String(pickField(r, ['كود الصنف','الكود','code','id'])).trim();
+    const rawPrice = pickField(r, ['السعر المحدث','السعر الجديد','السعر','price']);
+    const price = parseFloat(String(rawPrice).replace(/[^\d.]/g,''));
+    if(!name && !code) continue;
+
+    const match = state.meds.find(m =>
+      (code && normalizeText(m.id) === normalizeText(code)) ||
+      (name && normalizeText(m.name) === normalizeText(name))
+    );
+
+    if(match){
+      if(!isNaN(price) && price > 0 && match.price !== price){
+        match.price = price;
+        updated++;
+      }
+      if(mode === 'full'){
+        const st = parseInt(pickField(r, ['المخزون','الكمية','stock']), 10);
+        if(!isNaN(st)) match.stock = st;
+      }
+    } else if(mode === 'full' && name){
+      state.meds.push({
+        id: code || ('MED-' + (state.meds.length + 1)),
+        name,
+        active: String(pickField(r, ['المادة الفعالة','active'])).trim(),
+        category: String(pickField(r, ['القسم','category'])).trim() || 'أخرى',
+        form: String(pickField(r, ['الشكل','form'])).trim(),
+        price: isNaN(price) ? 0 : price,
+        stock: parseInt(pickField(r, ['المخزون','الكمية','stock']), 10) || 20,
+        company: String(pickField(r, ['الشركة','company'])).trim(),
+        rx: String(pickField(r, ['روشتة','rx'])).trim() === 'نعم'
+      });
+      added++;
+    }
+  }
+  state.meds = dedupeMedsList(state.meds);
+  persistMeds(mode === 'prices'
+    ? `⚡ تم تحديث أسعار ${updated} صنفاً بنجاح`
+    : `📥 تم تحديث ${updated} وإضافة ${added} صنفاً جديداً`);
+}
+
+async function exportExcel(){
+  try{
+    const XLSX = await loadSheetJS();
+    const rows = state.meds.map(m => ({
+      'كود الصنف': m.id,
+      'الاسم التجاري': m.name,
+      'المادة الفعالة': m.active,
+      'القسم': m.category,
+      'الشكل الصيدلي': m.form,
+      'السعر (ج.م)': m.price,
+      'المخزون': m.stock,
+      'الشركة': m.company,
+      'روشتة': m.rx ? 'نعم' : 'لا'
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'قاعدة بيانات الصيدلية');
+    XLSX.writeFile(wb, 'WaelPharmacy_Export.xlsx');
+    showToast('تم تصدير ملف الإكسيل بنجاح');
+  } catch(err){
+    showToast('خطأ في التصدير: ' + err.message);
+  }
+}
+
+async function syncGoogleSheet(manual){
+  const url = (manual ? document.getElementById('gsheetUrl').value.trim() : state.settings.gsheetUrl);
+  if(manual){
+    state.settings.gsheetUrl = url;
+    state.settings.gsheetAuto = document.getElementById('gsheetAuto').checked;
+    safeStorage.set(STORAGE_KEYS.SETTINGS, state.settings);
+  }
+  if(!url){ if(manual) showToast('أدخل رابط Google Sheets CSV أولاً'); return; }
+  try{
+    if(manual) showToast('جاري سحب الأسعار من Google Sheets...');
+    const res = await fetch(url);
+    const csv = await res.text();
+    const XLSX = await loadSheetJS();
+    const wb = XLSX.read(csv, {type:'string'});
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
+    applyImportedRows(rows, 'prices');
+  } catch(err){
+    if(manual) showToast('تعذر سحب البيانات من الرابط: ' + err.message);
+  }
+}
+
+// =========================================================================
+// 10. الطلبات والطباعة الحرارية 80mm والإعدادات
+// =========================================================================
+function renderAdminOrders(){
+  const wrap = document.getElementById('adminOrdersList');
+  if(!state.orders.length){
+    wrap.innerHTML = `<p style="text-align:center;color:var(--muted);padding:24px;">لا توجد طلبات مسجلة بعد.</p>`;
+    return;
+  }
+  wrap.innerHTML = state.orders.map((o, idx) => `<div class="order-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+      <strong>#${o.id} — ${escapeHtml(o.customer)} (${escapeHtml(o.phone)})</strong>
+      <span style="font-size:12px;color:var(--muted);">${o.date}</span>
+    </div>
+    <div style="font-size:12.5px;color:var(--muted);margin:4px 0;">العنوان: ${escapeHtml(o.address)}</div>
+    <ul style="font-size:12.5px;padding-right:18px;margin:6px 0;">
+      ${o.items.map(i => `<li>${escapeHtml(i.name)} × ${i.qty} — ${(i.price*i.qty).toFixed(2)} ج.م</li>`).join('')}
+    </ul>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+      <strong style="color:var(--primary);">الإجمالي: ${Number(o.total).toFixed(2)} ج.م</strong>
+      <button class="btn-secondary" onclick="printThermal(${idx})">🖨️ طباعة فاتورة 80mm</button>
+    </div>
+  </div>`).join('');
+}
+
+function printThermal(idx){
+  const o = state.orders[idx];
+  if(!o) return;
+  document.getElementById('printReceipt').innerHTML = `
+    <div style="text-align:center;border-bottom:1px dashed #000;padding-bottom:6px;margin-bottom:6px;">
+      <strong style="font-size:15px;">صيدلية وائل ناصف</strong><br>
+      <small>منذ 2003 — ${escapeHtml(state.settings.address)}</small><br>
+      <small>تليفون: ${escapeHtml(state.settings.whatsapp)}</small>
+    </div>
+    <div>فاتورة: <strong>${o.id}</strong> | ${o.date}</div>
+    <div>العميل: ${escapeHtml(o.customer)} (${escapeHtml(o.phone)})</div>
+    <div style="border-bottom:1px dashed #000;padding-bottom:4px;margin-bottom:6px;">العنوان: ${escapeHtml(o.address)}</div>
+    <table style="width:100%;font-size:11px;border-collapse:collapse;">
+      ${o.items.map(i => `<tr><td>${escapeHtml(i.name)} ×${i.qty}</td><td style="text-align:left;">${(i.price*i.qty).toFixed(2)}</td></tr>`).join('')}
+    </table>
+    <div style="border-top:1px dashed #000;margin-top:6px;padding-top:6px;font-size:14px;font-weight:900;text-align:center;">
+      الإجمالي: ${Number(o.total).toFixed(2)} ج.م
+    </div>
+    <div style="text-align:center;margin-top:8px;font-size:11px;">شكراً لثقتكم — نتمنى لكم الشفاء العاجل 🌿</div>
+  `;
+  window.print();
+}
+
+function saveSettings(){
+  state.settings.whatsapp = document.getElementById('setWhatsapp').value.trim() || '201093872001';
+  state.settings.address = document.getElementById('setAddress').value.trim();
+  safeStorage.set(STORAGE_KEYS.SETTINGS, state.settings);
+  showToast('تم حفظ الإعدادات بنجاح');
+}
+
+// =========================================================================
+// 11. مزامنة Firebase السحابية الاختيارية (تعمل فور وضع مفاتيحك)
+// =========================================================================
+async function initFirebaseIfConfigured(){
+  if(!MANUAL_FIREBASE_CONFIG.apiKey || !MANUAL_FIREBASE_CONFIG.projectId) return;
+  try{
+    const [{initializeApp}, {getAuth, signInAnonymously}, {getFirestore, doc, getDoc, setDoc}] = await Promise.all([
+      import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js'),
+      import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
+    ]);
+    const app = initializeApp(MANUAL_FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    await signInAnonymously(auth);
+    const db = getFirestore(app);
+    state.firebaseDb = { db, doc, getDoc, setDoc };
+    state.cloudOnline = true;
+    const pill = document.getElementById('cloudStatus');
+    pill.textContent = '☁️ متصل بالسحابة (Firebase)';
+    pill.classList.add('online');
+
+    const snap = await getDoc(doc(db, 'pharmacy_data', 'medications_v3'));
+    if(snap.exists() && Array.isArray(snap.data().items) && snap.data().items.length){
+      state.meds = dedupeMedsList(snap.data().items);
+      safeStorage.set(STORAGE_KEYS.MEDS, state.meds);
+      renderCategories();
+      renderMeds();
+    } else {
+      await setDoc(doc(db, 'pharmacy_data', 'medications_v3'), { items: state.meds, updatedAt: Date.now() });
+    }
+  } catch(err){
+    console.warn('Firebase fallback to local mode:', err);
+  }
+}
+
+async function saveMedsToCloud(){
+  if(!state.firebaseDb) return;
+  try{
+    const { db, doc, setDoc } = state.firebaseDb;
+    await setDoc(doc(db, 'pharmacy_data', 'medications_v3'), { items: state.meds, updatedAt: Date.now() });
+  } catch(e){}
+}
+
+async function saveOrderToCloud(order){
+  if(!state.firebaseDb) return;
+  try{
+    const { db, doc, setDoc } = state.firebaseDb;
+    await setDoc(doc(db, 'pharmacy_orders', order.id), order);
+  } catch(e){}
+}
+
+// =========================================================================
+// 12. إدارة النوافذ المنبثقة
+// =========================================================================
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-backdrop').forEach(el => {
+  el.addEventListener('click', e => { if(e.target === el) el.classList.remove('open'); });
+});
+
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>

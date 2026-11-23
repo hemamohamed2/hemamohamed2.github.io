@@ -1,0 +1,27 @@
+{
+  "name": "صيدلية وائل ناصف",
+  "short_name": "صيدلية وائل",
+  "description": "تطبيق صيدلية وائل ناصف لطلب الأدوية والروشتات والتوصيل السريع - منذ 2003",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#ffffff",
+  "theme_color": "#065f46",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
