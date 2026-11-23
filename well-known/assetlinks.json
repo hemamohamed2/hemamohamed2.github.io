@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.hemamohamed2.twa",
+        "sha256_cert_fingerprints": ["63:C6:32:7D:AC:94:71:5B:37:6D:1B:D5:2D:D5:97:4B:F8:FC:BB:89:BB:23:03:F1:9F:CD:D4:C4:62:82:50:AB"]
+      }
+    }]
