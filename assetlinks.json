@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "app.netlify.monumental_cascaron_53b1f6.twa",
-        "sha256_cert_fingerprints": ["BA:8F:72:8C:2D:CD:53:95:23:20:A8:10:6D:40:36:A5:66:37:2D:2D:0D:97:60:D1:14:8F:B3:9C:D6:12:5F:E4"]
-      }
-    }]
